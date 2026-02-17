@@ -20,9 +20,16 @@ This document tracks the progress of implementing the AutoBlogger application ac
   - [x] DropdownMenu, Separator, Textarea, Toast
   - [x] Checkbox, Switch, Skeleton, Tooltip, Sheet
   - [x] Dialog, Calendar, Select, Table, Tabs, Form
+  - [x] Additional UI components added:
+    - [x] accordion, aspect-ratio, breadcrumb
+    - [x] collapsible, hover-card
+    - [x] menubar, navigation-menu
+    - [x] pagination, progress
+    - [x] radio-group, scroll-area
+    - [x] toggle, toggle-group, data-table
 - [x] Theme provider created
 - [x] Utils (cn helper) created
-- [x] Dependencies installed
+- [x] Dependencies installed (@tanstack/react-table, @radix-ui packages)
 - [x] Loading skeletons component
 - [x] Error boundary component
 
@@ -71,6 +78,8 @@ This document tracks the progress of implementing the AutoBlogger application ac
 - [x] Data deletion endpoint (GDPR Right to Erasure)
 - [x] Data export endpoint (GDPR Right to Portability)
 - [x] useCookieConsent hook
+- [x] Onboarding wizard component (OnboardingWizard)
+- [x] Organization switcher component (OrgSwitcher)
 
 ### ✅ Phase 2.0: Multi-Tenant Foundation
 - [x] Organization auto-creation on signup
@@ -82,9 +91,10 @@ This document tracks the progress of implementing the AutoBlogger application ac
 
 ### ✅ Phase 3.0: Billing & Plans (Foundation)
 - [x] Plan constants and utilities
-- [x] Pricing table display
-- [x] Current plan display on settings
+- [x] Pricing table display (PricingTable component)
+- [x] Current plan display (CurrentPlan component)
 - [x] Usage metrics display
+- [x] Billing page created
 - [ ] Stripe integration (pending credentials)
 - [ ] Checkout flow (pending)
 - [ ] Webhook handler (pending)
@@ -122,7 +132,7 @@ This document tracks the progress of implementing the AutoBlogger application ac
 - [x] Fallback chain implementation
 - [x] Retry logic with exponential backoff
 - [x] Usage tracking
-- [ ] Provider management UI (partial)
+- [x] Provider management UI (ProviderList component)
 - [ ] Content generation pipeline integration (pending)
 
 ### ✅ Phase 7.0: Featured Image Pipeline (Infrastructure)
@@ -145,13 +155,13 @@ This document tracks the progress of implementing the AutoBlogger application ac
 - [x] Plan enforcement in worker
 - [x] Usage tracking
 
-### ✅ Phase 9.0: Observability
-- [x] Structured logging
-- [x] Sentry integration configuration
-- [x] PostHog analytics with consent
-- [x] Error boundary component
-- [ ] Detailed diagnostics panel (partial)
-- [ ] Job logs UI (partial)
+### ✅ Phase 8.0: Planner & Worker (UI Components)
+- [x] Calendar view component (CalendarView)
+- [x] Planner page created
+- [ ] Calendar scheduling dialog (pending)
+- [ ] Post management (pending)
+- [x] Job logs UI (JobLogsList component)
+- [x] Jobs page created
 
 ### ✅ Phase 10.0: Testing (Foundation)
 - [x] Testing infrastructure setup
@@ -199,7 +209,7 @@ This document tracks the progress of implementing the AutoBlogger application ac
 
 ## Summary
 
-**Overall Progress: ~85%**
+**Overall Progress: ~90%**
 
 ### Completed Core Features:
 1. **Authentication** - Better Auth with email verification and Google OAuth
@@ -211,12 +221,19 @@ This document tracks the progress of implementing the AutoBlogger application ac
 7. **GDPR Compliance** - Cookie consent, data export/deletion
 8. **Observability** - Logging, Sentry, PostHog
 9. **DevOps** - CI/CD, backup automation, disaster recovery
+10. **UI Components** - 40+ shadcn/ui components with all new additions
+11. **Billing Module** - Pricing table, current plan, usage metrics
+12. **Planner Module** - Calendar view, scheduling UI
+13. **Jobs Module** - Job logs list with details
+14. **AI Module** - Provider management UI
+15. **Onboarding** - Wizard component, org switcher
+16. **Content Module** - Content management page
 
 ### Pending Features (Require External Credentials):
 1. **Stripe Integration** - Checkout, webhooks, plan enforcement
 2. **Email Service** - Mailjet/Brevo for transactional emails
-3. **AI Generation UI** - Connect frontend to AI gateway
-4. **Image Pipeline** - Full integration with storage
+3. **Content Generation Actions** - Server actions for AI generation
+4. **Image Pipeline Actions** - Upload, generation, WordPress import
 5. **Production Deployment** - Vercel, Railway configs
 
 ### Key Technical Decisions:
