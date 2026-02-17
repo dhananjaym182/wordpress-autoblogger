@@ -37,6 +37,8 @@ export interface GenerateTextResult {
     totalTokens: number;
   };
   latency: number;
+  providerId: string;
+  providerName: string;
 }
 
 export interface GenerateImageResult {
@@ -44,6 +46,8 @@ export interface GenerateImageResult {
   model: string;
   revisedPrompt?: string;
   latency: number;
+  providerId: string;
+  providerName: string;
 }
 
 export interface FallbackChain {

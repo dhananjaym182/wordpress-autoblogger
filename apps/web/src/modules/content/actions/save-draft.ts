@@ -22,6 +22,7 @@ interface SaveDraftInput {
   featuredImageMode?: string;
   featuredImageSource?: string;
   featuredImagePrompt?: string;
+  featuredImageStoredKey?: string;
 }
 
 const normalizeList = (items?: string[]) =>
@@ -77,6 +78,7 @@ export async function saveDraft(input: SaveDraftInput) {
     featuredImageMode: input.featuredImageMode,
     featuredImageSource: input.featuredImageSource,
     featuredImagePrompt: input.featuredImagePrompt,
+    storedImageKey: input.featuredImageStoredKey,
     status: 'draft',
     desiredStatus: 'draft',
   };

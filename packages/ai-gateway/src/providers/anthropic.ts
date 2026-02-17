@@ -68,6 +68,8 @@ export class AnthropicProvider {
           totalTokens: data.usage.input_tokens + data.usage.output_tokens,
         },
         latency,
+        providerId: this.config.id,
+        providerName: this.config.name,
       };
     } catch (error) {
       const isRetryable = this.isRetryableError(error);
