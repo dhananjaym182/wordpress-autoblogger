@@ -27,18 +27,18 @@ const config: Config = {
         },
         // Semantic Colors
         success: {
+          DEFAULT: '#10b981',
           light: '#10b981',
-          DEFAULT: '#059669',
           dark: '#047857',
         },
         warning: {
+          DEFAULT: '#f59e0b',
           light: '#f59e0b',
-          DEFAULT: '#d97706',
           dark: '#b45309',
         },
         danger: {
+          DEFAULT: '#ef4444',
           light: '#ef4444',
-          DEFAULT: '#dc2626',
           dark: '#b91c1c',
         },
         // Neutral (Zinc base)
