@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Lint
+        run: npm run lint
+      
+      - name: Type check
+        run: npm run typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Generate Prisma client
+        run: npm run db:generate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+      
+      - name: Run database migrations
+        run: npm run db:deploy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+      
+      - name: Run tests
+        run: npm run test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+          REDIS_URL: redis://localhost:6379
+          ENCRYPTION_KEY: test-encryption-key-for-ci-only-do-not-use-in-production
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [lint-and-typecheck]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build packages
+        run: npm run build --workspace=@autoblogger/shared --workspace=@autoblogger/ai-gateway --workspace=@autoblogger/wp-client --workspace=@autoblogger/security
+      
+      - name: Build web app
+        run: npm run build --workspace=@autoblogger/web
+        env:
+          NEXT_PUBLIC_APP_URL: http://localhost:3000

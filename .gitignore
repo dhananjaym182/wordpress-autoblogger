@@ -1,44 +1,38 @@
 # Dependencies
-node_modules
-/.pnp
+node_modules/
+.pnp
 .pnp.js
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# Testing
-/coverage
+# Build outputs
+.next/
+dist/
+build/
+*.tsbuildinfo
+*.js.map
+*.d.ts.map
 
-# Next.js
-/.next/
-/out/
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
 
-# Production
-/build
-
-# Misc
-.DS_Store
-*.pem
-
-# Debug
+# Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
 
-# Local env files
-.env*.local
-.env
-
-# Vercel
-.vercel
-
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
-
-# Turborepo
-.turbo
-
-# Prisma
-prisma/*.db
-prisma/*.db-journal
+# Testing
+coverage/
+.nyc_output/
+*.lcov
 
 # IDE
 .vscode/
@@ -46,6 +40,34 @@ prisma/*.db-journal
 *.swp
 *.swo
 *~
+.project
+.classpath
 
 # OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# Turbo
+.turbo/
+
+# Prisma
+apps/web/prisma/migrations/*/migration_lock.toml
+
+# Misc
+*.pem
+.cache/
+.eslintcache
+.stylelintcache
+
+# Backup files
+*.bak
+*.backup
+
+# Local development
+*.local
+docker-compose.override.yml

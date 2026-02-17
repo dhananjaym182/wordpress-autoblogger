@@ -4,7 +4,7 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "dev": {
       "cache": false,
@@ -13,9 +13,13 @@
     "lint": {
       "outputs": []
     },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
     "test": {
-      "outputs": ["coverage/**"],
-      "dependsOn": ["build"]
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
     },
     "clean": {
       "cache": false
