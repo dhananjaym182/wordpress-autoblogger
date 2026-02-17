@@ -3,6 +3,8 @@ import { Inter, Fraunces } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
+import { CookieConsent } from '@/components/custom/cookie-consent';
+import { ErrorBoundary } from '@/components/custom/error-boundary';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const fraunces = Fraunces({
@@ -29,8 +31,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
+          <ErrorBoundary>
+            {children}
+            <CookieConsent />
+            <Toaster />
+          </ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>

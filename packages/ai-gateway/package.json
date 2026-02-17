@@ -1,0 +1,19 @@
+{
+  "name": "@autoblogger/ai-gateway",
+  "version": "1.0.0",
+  "description": "AI provider gateway with fallback chains for AutoBlogger",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "openai": "^4.28.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
