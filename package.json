@@ -1,0 +1,35 @@
+{
+  "name": "autoblogger",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered WordPress autoblogging SaaS",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:worker": "cd apps/worker && npm run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "db:generate": "cd apps/web && npx prisma generate",
+    "db:push": "cd apps/web && npx prisma db push",
+    "db:migrate": "cd apps/web && npx prisma migrate dev",
+    "db:studio": "cd apps/web && npx prisma studio",
+    "install:all": "npm install && cd apps/web && npm install && cd ../worker && npm install && cd ../packages/shared && npm install"
+  },
+  "devDependencies": {
+    "prettier": "^3.1.0",
+    "turbo": "^1.11.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "packageManager": "npm@10.2.4"
+}

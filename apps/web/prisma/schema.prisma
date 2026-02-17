@@ -1,0 +1,417 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTHENTICATION & ORGANIZATIONS
+// ============================================
+
+model User {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  emailVerifiedAt   DateTime?
+  name              String?
+  avatar            String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  // Relations
+  memberships       OrganizationMember[]
+  sessions          Session[]
+  accounts          Account[]
+
+  @@index([email])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  provider          String   // "email" | "google"
+  providerAccountId String?
+  accessToken       String?  @db.Text
+  refreshToken      String?  @db.Text
+  expiresAt         DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Organization {
+  id                String               @id @default(cuid())
+  name              String
+  slug              String               @unique
+  avatar            String?
+
+  // Billing
+  stripeCustomerId  String?              @unique
+  planId            String               @default("free") // "free" | "starter" | "pro"
+  planStatus        String               @default("active") // "active" | "canceled" | "past_due"
+  planStartedAt     DateTime?
+  planEndsAt        DateTime?
+
+  // Usage tracking
+  publishesThisMonth Int                 @default(0)
+  lastResetAt       DateTime             @default(now())
+
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  // Relations
+  members           OrganizationMember[]
+  projects          Project[]
+  aiEndpoints       AiEndpoint[]
+  aiFallbackPolicy  AiFallbackPolicy?
+
+  @@index([slug])
+  @@index([stripeCustomerId])
+}
+
+model OrganizationMember {
+  id             String       @id @default(cuid())
+  organizationId String
+  userId         String
+  role           String       @default("MEMBER") // "OWNER" | "ADMIN" | "MEMBER"
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+}
+
+// ============================================
+// PROJECTS & WORDPRESS
+// ============================================
+
+model Project {
+  id             String            @id @default(cuid())
+  organizationId String
+  name           String
+  slug           String
+  description    String?
+
+  // Content defaults
+  contentSettings Json?            // {tone, style, targetAudience, wordCount}
+  seoSettings     Json?            // {focusKeywordStrategy, metaLength, internalLinking}
+
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  // Relations
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  wpConnection      WpSiteConnection?
+  scheduledPosts    ScheduledPost[]
+  contentTemplates  ContentTemplate[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+}
+
+model WpSiteConnection {
+  id          String   @id @default(cuid())
+  projectId   String   @unique
+  siteUrl     String
+  siteName    String?
+
+  // Connection mode
+  mode        String   // "plugin" | "app_password"
+  status      String   @default("pending") // "ok" | "error" | "pending"
+  lastError   String?  @db.Text
+  lastCheckedAt DateTime?
+
+  // Plugin mode (HMAC)
+  keyId               String?
+  secretEncrypted     String?  @db.Text
+  pairedAt            DateTime?
+
+  // Fallback mode (Application Password)
+  wpUsername          String?
+  appPasswordEncrypted String? @db.Text
+
+  // Capabilities detected
+  capabilities Json?   // {posts: true, media: true, terms: true, seoMeta: true}
+
+  // WordPress metadata
+  wpVersion    String?
+  activeTheme  String?
+  detectedPlugins Json? // {yoast: true, rankmath: false, ...}
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([siteUrl])
+}
+
+// ============================================
+// CONTENT & SCHEDULING
+// ============================================
+
+model ContentTemplate {
+  id          String   @id @default(cuid())
+  projectId   String
+  name        String
+  description String?
+
+  // Template structure
+  type        String   // "how-to" | "listicle" | "review" | "news"
+  structure   Json     // {sections: [{title, prompt, optional}]}
+
+  // SEO defaults
+  seoTemplate Json?    // {titlePattern, metaPattern}
+
+  isPublic    Boolean  @default(false)
+  usageCount  Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model ScheduledPost {
+  id             String    @id @default(cuid())
+  projectId      String
+  externalId     String    @unique // For idempotency
+
+  // Content
+  title          String
+  markdown       String?   @db.Text
+  gutenbergHtml  String?   @db.Text
+  excerpt        String?   @db.Text
+
+  // Publishing
+  status         String    @default("draft") // "draft" | "scheduled" | "published" | "failed"
+  desiredStatus  String    @default("draft") // What user wants: "draft" | "publish"
+  scheduledAt    DateTime?
+  publishedAt    DateTime?
+
+  // WordPress metadata
+  wpPostId       Int?
+  wpEditUrl      String?
+  wpPublicUrl    String?
+  slug           String?
+  categories     String[]  // Category names (resolved to IDs during publish)
+  tags           String[]  // Tag names
+
+  // Featured image
+  featuredImageMode   String? // "ai" | "userupload" | "userurl"
+  featuredImageSource String? // URL or object key
+  featuredImagePrompt String? @db.Text
+  storedImageKey      String? // S3/R2 object key
+  wpMediaId           Int?
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  focusKeyword    String?
+  seoScore        Int?    // 0-100
+  readabilityScore Int?   // 0-100
+
+  // AI generation metadata
+  aiModel         String?
+  aiTokensUsed    Int?
+  aiCostUsd       Decimal? @db.Decimal(10, 6)
+  generatedAt     DateTime?
+
+  // Job tracking
+  attemptCount    Int      @default(0)
+  lastAttemptAt   DateTime?
+  lastError       String?  @db.Text
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  project  Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  jobRuns  JobRun[]
+
+  @@index([projectId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([externalId])
+}
+
+// ============================================
+// JOB QUEUE & LOGS
+// ============================================
+
+model JobRun {
+  id               String    @id @default(cuid())
+  scheduledPostId  String
+
+  // Job metadata
+  jobId            String?   // BullMQ job ID
+  traceId          String    // For distributed tracing
+
+  // Execution
+  status           String    // "running" | "completed" | "failed"
+  startedAt        DateTime  @default(now())
+  finishedAt       DateTime?
+  durationMs       Int?
+
+  // AI provider usage
+  textProviderUsed   String?
+  imageProviderUsed  String?
+  fallbackCount      Int     @default(0)
+
+  // WordPress response
+  wpResponseCode     Int?
+  wpResponseSummary  Json?   // {postId, status, errors}
+
+  // Error details
+  errorCode          String?
+  errorMessage       String? @db.Text
+  errorStack         String? @db.Text
+
+  createdAt          DateTime @default(now())
+
+  scheduledPost ScheduledPost @relation(fields: [scheduledPostId], references: [id], onDelete: Cascade)
+
+  @@index([scheduledPostId])
+  @@index([traceId])
+  @@index([status])
+  @@index([startedAt])
+}
+
+// ============================================
+// AI PROVIDERS
+// ============================================
+
+model AiEndpoint {
+  id             String   @id @default(cuid())
+  organizationId String
+
+  name           String   // "OpenAI Production" | "Local vLLM"
+  baseUrl        String   // "https://api.openai.com/v1" | "http://localhost:11434/v1"
+  apiKeyEncrypted String? @db.Text // Nullable for local endpoints
+
+  // Models
+  defaultModelText  String  // "gpt-4o-mini" | "llama-3-70b"
+  defaultModelImage String? // "dall-e-3" | null if not supported
+
+  // Capabilities
+  capabilities  Json     // {text: true, image: true}
+
+  // Mode
+  mode          String   @default("byok") // "managed" | "byok"
+
+  // Health
+  enabled       Boolean  @default(true)
+  lastTestedAt  DateTime?
+  lastError     String?  @db.Text
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([enabled])
+}
+
+model AiFallbackPolicy {
+  id             String   @id @default(cuid())
+  organizationId String   @unique
+
+  // Fallback chains (ordered endpoint IDs)
+  textChain      String[] // ["endpoint1", "endpoint2", "endpoint3"]
+  imageChain     String[]
+
+  // Retry configuration
+  retryPolicy    Json     // {retries: 2, timeoutMs: 30000, backoff: "exponential"}
+
+  // Circuit breaker (optional)
+  circuitBreaker Json?    // {enabled: true, failureThreshold: 5, cooldownMs: 60000}
+
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model AiProviderUsage {
+  id             String   @id @default(cuid())
+  organizationId String
+
+  providerId     String   // AiEndpoint.id
+  providerName   String   // For historical tracking
+  requestType    String   // "text" | "image"
+
+  model          String
+  tokensUsed     Int?
+  costUsd        Decimal? @db.Decimal(10, 6)
+
+  // Request metadata
+  success        Boolean
+  latencyMs      Int?
+  errorMessage   String?
+
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([providerId])
+}
+
+// ============================================
+// AUDIT & SECURITY
+// ============================================
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  organizationId String?
+  userId         String?
+
+  action         String   // "project.create" | "wp.connect" | "post.publish"
+  resourceType   String   // "project" | "wp_connection" | "scheduled_post"
+  resourceId     String?
+
+  metadata       Json?    // Additional context
+  ipAddress      String?
+  userAgent      String?  @db.Text
+
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([userId, createdAt])
+  @@index([action])
+}
+
+model RateLimitLog {
+  id        String   @id @default(cuid())
+  key       String   // "signup:email@example.com" | "api:org_123:ip_1.2.3.4"
+  count     Int      @default(1)
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([key])
+  @@index([expiresAt])
+}
