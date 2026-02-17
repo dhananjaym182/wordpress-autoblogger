@@ -83,7 +83,11 @@ export class AIGateway {
           latencyMs: result.latency,
         });
 
-        return result;
+        return {
+          ...result,
+          providerId,
+          providerName: instance.config.name,
+        };
       } catch (error) {
         if (error instanceof AIProviderError) {
           errors.push(error);
@@ -142,7 +146,11 @@ export class AIGateway {
             latencyMs: result.latency,
           });
 
-          return result;
+          return {
+            ...result,
+            providerId,
+            providerName: instance.config.name,
+          };
         }
       } catch (error) {
         if (error instanceof AIProviderError) {

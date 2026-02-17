@@ -258,6 +258,8 @@ All models from the implementation plan:
 - Markdown editor with preview
 - SEO and readability scoring panel
 - Featured image source selection
+- AI draft assistant integrated with AI gateway
+- Featured image pipeline (upload, URL import, AI generation)
 - Draft saving with Markdown → Gutenberg conversion
 
 ### 14. Infrastructure
@@ -403,57 +405,36 @@ All models from the implementation plan:
    - Verification email templates
    - Password reset emails
 
-3. **AI Generation UI** (Phase 6 - Completion)
-   - Provider management UI
-   - Content generation actions
-   - Integration with AI gateway
-
-### Medium Priority
-4. **Featured Image Pipeline UI** (Phase 7 - Completion)
-   - Image upload handler
-   - AI image generation UI
-   - URL import integration
-   - WordPress media import
-
-5. **Planner & Calendar** (Phase 8 - Completion)
-   - Calendar view component
-   - Scheduling dialog
-   - Post management
-   - Job logs UI
-
 ### Lower Priority
-6. **Advanced Observability**
+3. **Advanced Observability**
    - Detailed diagnostics panel
    - Real-time job monitoring
 
-7. **Testing** (Phase 10)
+4. **Testing** (Phase 10)
    - Unit tests
    - Integration tests
    - E2E tests
 
-8. **Production Deployment**
+5. **Production Deployment**
    - Vercel deployment config
    - Railway/Render deployment
 
 ## How to Continue
 
-### Option 1: Continue Building Phases
-1. Implement Phase 6 (AI Generation)
-2. Implement Phase 7 (Featured Image Pipeline)
-3. Complete Phase 8 (Scheduling & Calendar)
-4. Continue through remaining phases
+### Option 1: Complete Revenue Foundations
+1. Add Stripe credentials and enable checkout
+2. Configure webhook handling
+3. Finish plan-based feature gates
 
-### Option 2: Build Vertical Slice
-1. Pick one feature (e.g., AI generation)
-2. Build it end-to-end
-3. Integrate with the content editor
-4. Move to next feature
+### Option 2: Operational Hardening
+1. Add transactional email provider
+2. Build a test suite for key flows
+3. Expand observability dashboards
 
-### Option 3: Focus on Core Flow
-1. Build AI generation → publish
-2. Add featured image pipeline
-3. Complete scheduling system
-4. Add billing
+### Option 3: Production Deployment
+1. Finalize Vercel deployment config
+2. Deploy worker to Railway/Render
+3. Validate backups and recovery workflows
 
 ## Environment Setup
 
@@ -511,8 +492,6 @@ npm run dev:worker
 - API documentation
 
 ### 🚧 Partial (Infrastructure Ready, Needs UI/Credentials)
-- AI generation UI (gateway ready, needs frontend integration)
-- Featured image pipeline (security ready, needs UI)
 - Stripe billing (foundation ready, needs Stripe setup)
 - Email service (structure ready, needs Mailjet/Brevo)
 

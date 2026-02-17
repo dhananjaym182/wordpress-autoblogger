@@ -6,6 +6,16 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 interface ScheduledPost {
   id: string
@@ -17,7 +27,7 @@ interface ScheduledPost {
 
 export function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [posts] = useState<ScheduledPost[]>([
+  const [posts, setPosts] = useState<ScheduledPost[]>([
     {
       id: "1",
       title: "Getting Started with AutoBlogger",
@@ -47,12 +57,11 @@ export function CalendarView() {
       desiredStatus: "draft",
     },
   ])
-
-  const daysInMonth = (date: Date) => {
-    const year = date.getFullYear()
-    const month = date.getMonth()
-    return new Date(year, month + 1, 0).getDate()
-  }
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [newTitle, setNewTitle] = useState("")
+  const [newDate, setNewDate] = useState("")
+  const [newTime, setNewTime] = useState("09:00")
+  const [newDesiredStatus, setNewDesiredStatus] = useState<"draft" | "publish">("publish")
 
   const firstDayOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1)
 
@@ -89,15 +98,126 @@ export function CalendarView() {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
   }
 
+  const resetScheduleForm = () => {
+    setNewTitle("")
+    setNewDate("")
+    setNewTime("09:00")
+    setNewDesiredStatus("publish")
+  }
+
+  const handleSchedulePost = () => {
+    if (!newTitle || !newDate) {
+      return
+    }
+
+    const scheduledAt = new Date(`${newDate}T${newTime}`)
+
+    setPosts((prev) => [
+      ...prev,
+      {
+        id: `${Date.now()}`,
+        title: newTitle,
+        status: "scheduled",
+        scheduledAt,
+        desiredStatus: newDesiredStatus,
+      },
+    ])
+
+    setIsDialogOpen(false)
+    resetScheduleForm()
+  }
+
+  const updateStatus = (id: string, status: ScheduledPost["status"]) => {
+    setPosts((prev) => prev.map((post) => (post.id === id ? { ...post, status } : post)))
+  }
+
+  const removePost = (id: string) => {
+    setPosts((prev) => prev.filter((post) => post.id !== id))
+  }
+
+  const sortedPosts = [...posts].sort(
+    (a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime()
+  )
+
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">Content Calendar</h2>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Schedule Post
-          </Button>
+          <Dialog
+            open={isDialogOpen}
+            onOpenChange={(open) => {
+              setIsDialogOpen(open)
+              if (open && !newDate) {
+                setNewDate(new Date().toISOString().split("T")[0])
+              }
+            }}
+          >
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Schedule Post
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Schedule a Post</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="schedule-title">Post Title</Label>
+                  <Input
+                    id="schedule-title"
+                    value={newTitle}
+                    onChange={(event) => setNewTitle(event.target.value)}
+                    placeholder="Announcing our AI workflow"
+                  />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="schedule-date">Date</Label>
+                    <Input
+                      id="schedule-date"
+                      type="date"
+                      value={newDate}
+                      onChange={(event) => setNewDate(event.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="schedule-time">Time</Label>
+                    <Input
+                      id="schedule-time"
+                      type="time"
+                      value={newTime}
+                      onChange={(event) => setNewTime(event.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="schedule-status">Desired Status</Label>
+                  <select
+                    id="schedule-status"
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={newDesiredStatus}
+                    onChange={(event) =>
+                      setNewDesiredStatus(event.target.value as "draft" | "publish")
+                    }
+                  >
+                    <option value="publish">Publish</option>
+                    <option value="draft">Save as Draft</option>
+                  </select>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSchedulePost} disabled={!newTitle || !newDate}>
+                  Add to Calendar
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </CardHeader>
       <CardContent>
@@ -157,6 +277,51 @@ export function CalendarView() {
                 })}
               </div>
             </ScrollArea>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Scheduled Posts</h3>
+              <Badge variant="outline">{sortedPosts.length} total</Badge>
+            </div>
+            <div className="space-y-3">
+              {sortedPosts.map((post) => (
+                <div key={post.id} className="flex flex-col gap-3 rounded-lg border p-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="font-medium">{post.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {post.scheduledAt.toLocaleString()} · Desired {post.desiredStatus}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="outline" className="capitalize">
+                      {post.status}
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        updateStatus(post.id, post.status === "draft" ? "scheduled" : "draft")
+                      }
+                    >
+                      {post.status === "draft" ? "Mark Scheduled" : "Mark Draft"}
+                    </Button>
+                    {post.status !== "published" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => updateStatus(post.id, "published")}
+                      >
+                        Mark Published
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="sm" onClick={() => removePost(post.id)}>
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="flex items-center justify-around pt-4 border-t text-sm">

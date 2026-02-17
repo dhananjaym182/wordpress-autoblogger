@@ -71,3 +71,4 @@ apps/web/prisma/migrations/*/migration_lock.toml
 # Local development
 *.local
 docker-compose.override.yml
+apps/web/public/uploads/

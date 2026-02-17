@@ -133,16 +133,16 @@ This document tracks the progress of implementing the AutoBlogger application ac
 - [x] Retry logic with exponential backoff
 - [x] Usage tracking
 - [x] Provider management UI (ProviderList component)
-- [ ] Content generation pipeline integration (pending)
+- [x] Content generation pipeline integration
 
 ### ✅ Phase 7.0: Featured Image Pipeline (Infrastructure)
 - [x] Image generation types
 - [x] SSRF protection
 - [x] URL import validation
 - [x] Security guard utilities
-- [ ] AI image generation UI (pending)
-- [ ] Image upload handler (pending)
-- [ ] WordPress media import (pending)
+- [x] AI image generation UI
+- [x] Image upload handler
+- [x] WordPress media import integration
 
 ### ✅ Phase 8.0: Worker Service (Complete)
 - [x] Worker package structure
@@ -158,8 +158,8 @@ This document tracks the progress of implementing the AutoBlogger application ac
 ### ✅ Phase 8.0: Planner & Worker (UI Components)
 - [x] Calendar view component (CalendarView)
 - [x] Planner page created
-- [ ] Calendar scheduling dialog (pending)
-- [ ] Post management (pending)
+- [x] Calendar scheduling dialog
+- [x] Post management
 - [x] Job logs UI (JobLogsList component)
 - [x] Jobs page created
 
@@ -225,16 +225,14 @@ This document tracks the progress of implementing the AutoBlogger application ac
 11. **Billing Module** - Pricing table, current plan, usage metrics
 12. **Planner Module** - Calendar view, scheduling UI
 13. **Jobs Module** - Job logs list with details
-14. **AI Module** - Provider management UI
+14. **AI Module** - Provider management UI + generation actions
 15. **Onboarding** - Wizard component, org switcher
 16. **Content Module** - Content management page
 
 ### Pending Features (Require External Credentials):
 1. **Stripe Integration** - Checkout, webhooks, plan enforcement
 2. **Email Service** - Mailjet/Brevo for transactional emails
-3. **Content Generation Actions** - Server actions for AI generation
-4. **Image Pipeline Actions** - Upload, generation, WordPress import
-5. **Production Deployment** - Vercel, Railway configs
+3. **Production Deployment** - Vercel, Railway configs
 
 ### Key Technical Decisions:
 - **Monorepo:** Turborepo for efficient builds
@@ -250,10 +248,8 @@ This document tracks the progress of implementing the AutoBlogger application ac
 
 1. Add Stripe credentials and complete billing integration
 2. Configure email service for verification and notifications
-3. Build AI provider management UI
-4. Complete featured image pipeline UI
-5. Add comprehensive test suite
-6. Deploy to production
+3. Add comprehensive test suite
+4. Deploy to production
 
 ## Branch Information
 

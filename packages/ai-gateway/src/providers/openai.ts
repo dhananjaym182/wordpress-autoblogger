@@ -41,6 +41,8 @@ export class OpenAIProvider {
           totalTokens: response.usage?.total_tokens || 0,
         },
         latency,
+        providerId: this.config.id,
+        providerName: this.config.name,
       };
     } catch (error) {
       const isRetryable = this.isRetryableError(error);
@@ -73,6 +75,8 @@ export class OpenAIProvider {
         model: options.model || this.config.defaultModelImage || 'dall-e-3',
         revisedPrompt: imageData.revised_prompt,
         latency,
+        providerId: this.config.id,
+        providerName: this.config.name,
       };
     } catch (error) {
       const isRetryable = this.isRetryableError(error);

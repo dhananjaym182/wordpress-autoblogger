@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { Save, ArrowLeft } from 'lucide-react';
+import { Save, ArrowLeft, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,12 @@ import { analyzeSeo } from '../lib/seo-analyzer';
 import { FeaturedImagePicker } from './FeaturedImagePicker';
 import { PreviewPanel } from './PreviewPanel';
 import { SeoPanel } from './SeoPanel';
+import { generateContent } from '@/modules/ai/actions/generate-content';
+import {
+  generateFeaturedImage,
+  importFeaturedImageFromUrl,
+  uploadFeaturedImage,
+} from '../actions/featured-image';
 
 interface ContentEditorProps {
   projectId: string;
@@ -34,11 +40,18 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
     mode: '',
     source: '',
     prompt: '',
+    storedKey: '',
+    previewUrl: '',
   });
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiTone, setAiTone] = useState('Professional');
+  const [aiWordCount, setAiWordCount] = useState(900);
   const [postId, setPostId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isGenerating, startGenerating] = useTransition();
+  const [isImageProcessing, setIsImageProcessing] = useState(false);
 
   const analysis = useMemo(
     () =>
@@ -70,6 +83,7 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
         featuredImageMode: featuredImage.mode || undefined,
         featuredImageSource: featuredImage.source || undefined,
         featuredImagePrompt: featuredImage.prompt || undefined,
+        featuredImageStoredKey: featuredImage.storedKey || undefined,
       });
 
       if (result?.error) {
@@ -83,6 +97,126 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
 
       setMessage('Draft saved successfully.');
     });
+  };
+
+  const handleFeaturedImageChange = (value: {
+    mode: string;
+    source: string;
+    prompt: string;
+  }) => {
+    setFeaturedImage((prev) => {
+      const modeChanged = prev.mode !== value.mode;
+      const sourceChanged = prev.source !== value.source;
+      const promptChanged = prev.prompt !== value.prompt;
+
+      return {
+        ...prev,
+        ...value,
+        storedKey: modeChanged || sourceChanged || promptChanged ? '' : prev.storedKey,
+        previewUrl: modeChanged || sourceChanged || promptChanged ? '' : prev.previewUrl,
+      };
+    });
+  };
+
+  const handleGenerateContent = () => {
+    setMessage(null);
+    setError(null);
+
+    startGenerating(async () => {
+      const result = await generateContent({
+        projectId,
+        postId: postId ?? undefined,
+        title: title || undefined,
+        focusKeyword: focusKeyword || undefined,
+        tone: aiTone,
+        wordCount: aiWordCount,
+        prompt: aiPrompt || undefined,
+      });
+
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+
+      if (result?.content) {
+        setMarkdown(result.content);
+      }
+
+      setMessage('AI draft generated successfully.');
+    });
+  };
+
+  const handleImageUpload = async (file: File) => {
+    setError(null);
+    setMessage(null);
+    setIsImageProcessing(true);
+
+    const formData = new FormData();
+    formData.append('projectId', projectId);
+    formData.append('file', file);
+
+    const result = await uploadFeaturedImage(formData);
+    setIsImageProcessing(false);
+
+    if (result?.error) {
+      setError(result.error);
+      return;
+    }
+
+    setFeaturedImage((prev) => ({
+      ...prev,
+      mode: 'userupload',
+      source: result.previewUrl ?? '',
+      storedKey: result.storedImageKey ?? '',
+      previewUrl: result.previewUrl ?? '',
+    }));
+  };
+
+  const handleImageImport = async () => {
+    setError(null);
+    setMessage(null);
+    setIsImageProcessing(true);
+
+    const result = await importFeaturedImageFromUrl({
+      projectId,
+      imageUrl: featuredImage.source,
+    });
+    setIsImageProcessing(false);
+
+    if (result?.error) {
+      setError(result.error);
+      return;
+    }
+
+    setFeaturedImage((prev) => ({
+      ...prev,
+      storedKey: result.storedImageKey ?? '',
+      previewUrl: result.previewUrl ?? '',
+    }));
+  };
+
+  const handleImageGeneration = async () => {
+    setError(null);
+    setMessage(null);
+    setIsImageProcessing(true);
+
+    const result = await generateFeaturedImage({
+      projectId,
+      prompt: featuredImage.prompt,
+    });
+    setIsImageProcessing(false);
+
+    if (result?.error) {
+      setError(result.error);
+      return;
+    }
+
+    setFeaturedImage((prev) => ({
+      ...prev,
+      source: result.imageUrl ?? prev.source,
+      storedKey: result.storedImageKey ?? '',
+      previewUrl: result.previewUrl ?? '',
+    }));
   };
 
   return (
@@ -118,6 +252,56 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
 
       <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
         <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Draft Assistant</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="ai-tone">Tone</Label>
+                  <select
+                    id="ai-tone"
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={aiTone}
+                    onChange={(event) => setAiTone(event.target.value)}
+                  >
+                    <option value="Professional">Professional</option>
+                    <option value="Friendly">Friendly</option>
+                    <option value="Conversational">Conversational</option>
+                    <option value="Analytical">Analytical</option>
+                    <option value="Persuasive">Persuasive</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ai-word-count">Target Word Count</Label>
+                  <Input
+                    id="ai-word-count"
+                    type="number"
+                    min={300}
+                    max={2000}
+                    value={aiWordCount}
+                    onChange={(event) => setAiWordCount(Number(event.target.value))}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ai-prompt">Prompt (optional)</Label>
+                <Textarea
+                  id="ai-prompt"
+                  placeholder="Describe the angle, structure, or key points you want to cover"
+                  value={aiPrompt}
+                  onChange={(event) => setAiPrompt(event.target.value)}
+                  rows={4}
+                />
+              </div>
+              <Button onClick={handleGenerateContent} disabled={isGenerating}>
+                <Sparkles className="mr-2 h-4 w-4" />
+                {isGenerating ? 'Generating Draft...' : 'Generate Draft'}
+              </Button>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Content</CardTitle>
@@ -217,7 +401,12 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
             mode={featuredImage.mode}
             source={featuredImage.source}
             prompt={featuredImage.prompt}
-            onChange={setFeaturedImage}
+            previewUrl={featuredImage.previewUrl}
+            isProcessing={isImageProcessing}
+            onChange={handleFeaturedImageChange}
+            onUpload={handleImageUpload}
+            onImport={handleImageImport}
+            onGenerate={handleImageGeneration}
           />
 
           <SeoPanel
