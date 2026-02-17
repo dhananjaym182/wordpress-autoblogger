@@ -1,0 +1,46 @@
+- generic [active]:
+  - alert [ref=e1]
+  - dialog [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - heading "Build Error" [level=1] [ref=e7]
+        - paragraph [ref=e8]: Failed to compile
+        - generic [ref=e9]:
+          - text: Next.js (14.2.35) is outdated
+          - link "(learn more)" [ref=e11] [cursor=pointer]:
+            - /url: https://nextjs.org/docs/messages/version-staleness
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - link "./src/lib/auth.ts:1:1" [ref=e14] [cursor=pointer]:
+            - text: ./src/lib/auth.ts:1:1
+            - img [ref=e15]
+          - generic [ref=e19]:
+            - generic [ref=e20]: "Module not found: Can't resolve 'better-auth'"
+            - text: ">"
+            - generic [ref=e21]: 1 |
+            - text: import
+            - generic [ref=e22]: "{ betterAuth }"
+            - text: from 'better-auth';
+            - generic [ref=e23]: "|"
+            - text: ^
+            - generic [ref=e24]: 2 |
+            - text: import
+            - generic [ref=e25]: "{ prismaAdapter }"
+            - text: from 'better-auth/adapters/prisma';
+            - generic [ref=e26]: 3 |
+            - text: import
+            - generic [ref=e27]: "{ db }"
+            - text: from './db';
+            - generic [ref=e28]: 4 |
+            - text: import
+            - generic [ref=e29]: "{ createId }"
+            - text: from './id';
+            - generic [ref=e30]:
+              - link "https://nextjs.org/docs/messages/module-not-found" [ref=e31] [cursor=pointer]:
+                - /url: https://nextjs.org/docs/messages/module-not-found
+              - text: "Import trace for requested module:"
+            - link "./src/middleware.ts" [ref=e32] [cursor=pointer]:
+              - text: ./src/middleware.ts
+              - img [ref=e33]
+        - contentinfo [ref=e37]:
+          - paragraph [ref=e38]: This error occurred during the build process and can only be dismissed by fixing the error.
