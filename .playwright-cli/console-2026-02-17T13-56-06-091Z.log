@@ -1,0 +1,56 @@
+[    3025ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/:0
+[    4894ms] Error: Module not found: Can't resolve 'better-auth'
+> 1 | import { betterAuth } from 'better-auth';
+    | ^
+  2 | import { prismaAdapter } from 'better-auth/adapters/prisma';
+  3 | import { db } from './db';
+  4 | import { createId } from './id';
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/middleware.ts
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at getNotFoundError (file:///home/engine/project/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/parseNotFoundError.js:124:16)
+    at async getModuleBuildError (file:///home/engine/project/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/webpackModuleError.js:104:27)
+    at async (file:///home/engine/project/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:29:49)
+    at async (file:///home/engine/project/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:27:21)
+[    4890ms] [ERROR] ./src/lib/auth.ts:1:1
+Module not found: Can't resolve 'better-auth'
+> 1 | import { betterAuth } from 'better-auth';
+    | ^
+  2 | import { prismaAdapter } from 'better-auth/adapters/prisma';
+  3 | import { db } from './db';
+  4 | import { createId } from './id';
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/middleware.ts @ webpack-internal:///../../node_modules/next/dist/client/components/react-dev-overlay/internal/helpers/hydration-error-info.js:62
+[    4890ms] [ERROR] ./src/lib/auth.ts:2:1
+Module not found: Can't resolve 'better-auth/adapters/prisma'
+  1 | import { betterAuth } from 'better-auth';
+> 2 | import { prismaAdapter } from 'better-auth/adapters/prisma';
+    | ^
+  3 | import { db } from './db';
+  4 | import { createId } from './id';
+  5 |
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/middleware.ts @ webpack-internal:///../../node_modules/next/dist/client/components/react-dev-overlay/internal/helpers/hydration-error-info.js:62
+[    4984ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
+[    9888ms] [ERROR] ./src/app/globals.css.webpack[javascript/auto]!=!../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./src/app/globals.css
+Error: ENOENT: no such file or directory, stat '/home/engine/project/apps/web/src/app//(dashboard/)/layout.tsx'
+Import trace for requested module:
+./src/app/globals.css.webpack[javascript/auto]!=!../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./src/app/globals.css
+./src/app/globals.css @ webpack-internal:///../../node_modules/next/dist/client/components/react-dev-overlay/internal/helpers/hydration-error-info.js:62
+[    9888ms] [ERROR] ./src/app/globals.css
+Error: ENOENT: no such file or directory, stat '/home/engine/project/apps/web/src/app//(dashboard/)/layout.tsx'
+-- inner error --
+Error: ENOENT: no such file or directory, stat '/home/engine/project/apps/web/src/app//(dashboard/)/layout.tsx'
+Generated code for /home/engine/project/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!/home/engine/project/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!/home/engine/project/apps/web/src/app/globals.css
+
+Import trace for requested module:
+./src/app/globals.css @ webpack-internal:///../../node_modules/next/dist/client/components/react-dev-overlay/internal/helpers/hydration-error-info.js:62

@@ -220,7 +220,19 @@ All models from the implementation plan:
 - Billing page with pricing
 - Planner page with upcoming content
 
-### 12. Infrastructure
+### 12. WordPress Connection UI
+- Connection management page per project
+- Plugin pairing flow (HMAC key/secret)
+- Application password fallback form
+- Connection testing and status updates
+
+### 13. Content Editor Foundation
+- Markdown editor with preview
+- SEO and readability scoring panel
+- Featured image source selection
+- Draft saving with Markdown → Gutenberg conversion
+
+### 14. Infrastructure
 - Docker Compose for:
   - PostgreSQL 15
   - Redis 7
@@ -228,7 +240,7 @@ All models from the implementation plan:
 - Full dev environment including web and worker
 - Development Dockerfile
 
-### 13. Documentation
+### 15. Documentation
 - Comprehensive README
 - Detailed getting started guide
 - Progress tracking document
@@ -298,81 +310,73 @@ All models from the implementation plan:
 ## What's Missing (Priority Order)
 
 ### High Priority
-1. **Content Editor** (Phase 5)
-   - Markdown editor
-   - Live preview
-   - SEO panel
-   - Featured image picker
-
-2. **AI Generation** (Phase 6)
+1. **AI Generation** (Phase 6)
    - AI gateway
    - Content generation pipeline
    - Provider management
    - Cost tracking
 
-3. **WordPress Integration UI** (Phase 4 - Completion)
-   - Connection dialog
-   - Plugin pairing flow
-   - Application Password fallback
-   - Connection testing
-
-4. **Featured Image Pipeline** (Phase 7)
+2. **Featured Image Pipeline** (Phase 7)
    - AI image generation
    - User image upload
    - URL import with SSRF protection
    - Media library sync
 
+3. **Content Quality Gates** (Phase 5)
+   - Quality checks for readability and SEO
+   - Moderation safeguards
+
 ### Medium Priority
-5. **Planner & Calendar** (Phase 8)
+4. **Planner & Calendar** (Phase 8)
    - Calendar view
    - Scheduling dialog
    - Post management
    - Job logs UI
 
-6. **Billing Integration** (Phase 3 - Completion)
+5. **Billing Integration** (Phase 3 - Completion)
    - Stripe integration
    - Checkout flow
    - Webhook handling
    - Plan-based feature gates
 
 ### Lower Priority
-7. **Observability** (Phase 9)
+6. **Observability** (Phase 9)
    - Sentry integration
    - PostHog analytics
    - Advanced diagnostics
 
-8. **Testing** (Phase 10)
+7. **Testing** (Phase 10)
    - Unit tests
    - Integration tests
    - E2E tests
 
-9. **DevOps** (Phase 11)
+8. **DevOps** (Phase 11)
    - CI/CD pipelines
    - Production deployments
    - Backup scripts
 
-10. **Documentation** (Phase 11.5)
-    - API docs
-    - Webhook docs
-    - Code examples
+9. **Documentation** (Phase 11.5)
+   - API docs
+   - Webhook docs
+   - Code examples
 
 ## How to Continue
 
 ### Option 1: Continue Building Phases
-1. Implement Phase 4 (WordPress Connection UI)
-2. Implement Phase 5 (Content Editor)
-3. Implement Phase 6 (AI Generation)
+1. Implement Phase 6 (AI Generation)
+2. Implement Phase 7 (Featured Image Pipeline)
+3. Complete Phase 8 (Scheduling & Calendar)
 4. Continue through remaining phases
 
 ### Option 2: Build Vertical Slice
-1. Pick one feature (e.g., content editor)
+1. Pick one feature (e.g., AI generation)
 2. Build it end-to-end
-3. Integrate with AI generation
+3. Integrate with the content editor
 4. Move to next feature
 
 ### Option 3: Focus on Core Flow
-1. Build content editor → AI generation → publish
-2. Add WordPress connection UI
+1. Build AI generation → publish
+2. Add featured image pipeline
 3. Complete scheduling system
 4. Add billing
 
@@ -410,7 +414,7 @@ npm run dev:worker
 
 ## Current Status
 
-**Completion: ~55% of full implementation**
+**Completion: ~65% of full implementation**
 
 ✅ Foundation complete
 ✅ Database schema complete
@@ -423,14 +427,14 @@ npm run dev:worker
 ✅ Dashboard with navigation
 ✅ Billing page foundation
 ✅ Planner page foundation
+✅ WordPress connection UI
+✅ Content editor foundation
 
 🚧 In Progress:
-- WordPress connection UI
-- Content editor
-
-⏳ TODO:
 - AI generation pipeline
 - Featured image handling
+
+⏳ TODO:
 - Complete scheduling system
 - Stripe billing integration
 - Testing

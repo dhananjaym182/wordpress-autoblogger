@@ -119,11 +119,11 @@ This document tracks the progress of implementing the AutoBlogger application ac
 - [x] Admin UI with pairing code
 - [x] Diagnostics panel
 
-### ✅ Phase 4.5: WordPress Connection UI (Partial)
-- [ ] Connection dialog
-- [ ] Plugin pairing flow
-- [ ] Application Password fallback
-- [ ] Connection testing
+### ✅ Phase 4.5: WordPress Connection UI (Complete)
+- [x] Connection dialog
+- [x] Plugin pairing flow
+- [x] Application Password fallback
+- [x] Connection testing
 
 ### ✅ Phase 8.0: Worker Service (Foundation)
 - [x] Worker package created
@@ -166,11 +166,11 @@ This document tracks the progress of implementing the AutoBlogger application ac
 ## In Progress
 
 ### Phase 5.0: Content Editor & Conversion
-- [ ] Markdown editor
-- [ ] Markdown to Gutenberg converter
-- [ ] SEO analyzer
+- [x] Markdown editor
+- [x] Markdown to Gutenberg converter
+- [x] SEO analyzer
 - [ ] Content quality gates
-- [ ] Preview panel
+- [x] Preview panel
 
 ### Phase 6.0: AI Content Generation
 - [ ] AI gateway package
