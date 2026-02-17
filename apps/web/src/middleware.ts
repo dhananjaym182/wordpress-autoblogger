@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { auth } from './lib/auth';
 
-export function middleware(request: NextRequest) {
-  // Add security headers
+export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
+  // Add security headers
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -16,9 +17,40 @@ export function middleware(request: NextRequest) {
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    // Handle preflight requests
     if (request.method === 'OPTIONS') {
       return new NextResponse(null, { status: 204, headers: response.headers });
+    }
+  }
+
+  // Check auth for protected routes
+  const isProtectedRoute = request.nextUrl.pathname.startsWith('/projects') ||
+    request.nextUrl.pathname.startsWith('/settings') ||
+    request.nextUrl.pathname.startsWith('/billing') ||
+    request.nextUrl.pathname.startsWith('/planner');
+
+  const isAuthRoute = request.nextUrl.pathname.startsWith('/login') ||
+    request.nextUrl.pathname.startsWith('/signup');
+
+  // Get session from Better Auth
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  // Redirect unauthenticated users from protected routes to login
+  if (isProtectedRoute && !session) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  // Redirect authenticated users from auth routes to dashboard
+  if (isAuthRoute && session) {
+    return NextResponse.redirect(new URL('/projects', request.url));
+  }
+
+  // Check email verification for protected routes
+  if (isProtectedRoute && session && !session.user.emailVerifiedAt) {
+    // Allow access to verify-email page
+    if (!request.nextUrl.pathname.startsWith('/verify-email')) {
+      return NextResponse.redirect(new URL('/verify-email', request.url));
     }
   }
 
@@ -27,13 +59,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
     '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
 };
