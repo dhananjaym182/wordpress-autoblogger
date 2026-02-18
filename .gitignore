@@ -72,3 +72,4 @@ apps/web/prisma/migrations/*/migration_lock.toml
 *.local
 docker-compose.override.yml
 apps/web/public/uploads/
+.worktrees/
