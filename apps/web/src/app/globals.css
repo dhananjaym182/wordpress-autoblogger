@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
 
 @layer base {
   :root {
@@ -71,5 +70,13 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+}
+
+@media (min-width: 768px) {
+  body {
+    font-size: 16px;
   }
 }

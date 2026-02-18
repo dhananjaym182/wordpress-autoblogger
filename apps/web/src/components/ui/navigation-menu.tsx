@@ -1,9 +1,15 @@
+"use client"
+
 import * as React from "react"
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
 import { cva } from "class-variance-authority"
 import { ChevronDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+
+const navigationMenuTriggerStyle = cva(
+  "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-[0.95rem] font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50"
+)
 
 const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
@@ -45,10 +51,7 @@ const NavigationMenuTrigger = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <NavigationMenuPrimitive.Trigger
     ref={ref}
-    className={cn(
-      "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50",
-      className
-    )}
+    className={cn(navigationMenuTriggerStyle(), className)}
     {...props}
   >
     {children}{" "}
@@ -87,8 +90,8 @@ const NavigationMenuLink = React.forwardRef<
     )}
     {...props}
   >
-    <div className="text-sm font-medium leading-none">{children}</div>
-    {title && <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{title}</p>}
+    <div className="text-[0.95rem] font-medium leading-none">{children}</div>
+    {title && <p className="line-clamp-2 text-[0.9rem] leading-snug text-muted-foreground">{title}</p>}
   </NavigationMenuPrimitive.Link>
 ))
 NavigationMenuLink.displayName = NavigationMenuPrimitive.Link.displayName
@@ -136,4 +139,5 @@ export {
   NavigationMenuLink,
   NavigationMenuViewport,
   NavigationMenuIndicator,
+  navigationMenuTriggerStyle,
 }

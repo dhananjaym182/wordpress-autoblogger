@@ -9,16 +9,18 @@ export async function OrgSwitcher() {
     return null;
   }
 
+  let state: Awaited<ReturnType<typeof getOrganizationSwitcherState>>;
+
   try {
-    const state = await getOrganizationSwitcherState(session.user.id);
-    return (
-      <OrgSwitcherClient
-        organizations={state.organizations}
-        activeOrganizationId={state.activeOrganizationId}
-      />
-    );
+    state = await getOrganizationSwitcherState(session.user.id);
   } catch {
     return null;
   }
-}
 
+  return (
+    <OrgSwitcherClient
+      organizations={state.organizations}
+      activeOrganizationId={state.activeOrganizationId}
+    />
+  );
+}

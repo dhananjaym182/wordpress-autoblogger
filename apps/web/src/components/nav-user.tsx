@@ -9,7 +9,6 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react"
-import { signOut } from "@/modules/auth/lib/auth-client"
 
 import {
   Avatar,
@@ -50,9 +49,8 @@ export function NavUser({
     .toUpperCase()
     .slice(0, 2)
 
-  const handleSignOut = async () => {
-    await signOut()
-    window.location.href = "/"
+  const handleSignOut = () => {
+    window.location.href = "/signout"
   }
 
   const avatarFallback = initials || user.email.slice(0, 2).toUpperCase()

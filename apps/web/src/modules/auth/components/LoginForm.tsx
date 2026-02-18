@@ -21,10 +21,10 @@ export default function SignIn() {
 	const router = useRouter();
 
 	return (
-		<Card className="max-w-md">
+		<Card className="max-w-md border-border/70 bg-background/80 backdrop-blur-md shadow-lg shadow-primary/5">
 			<CardHeader>
 				<CardTitle className="text-lg md:text-xl">Sign In</CardTitle>
-				<CardDescription className="text-xs md:text-sm">
+				<CardDescription className="text-sm">
 					Enter your email below to login to your account
 				</CardDescription>
 			</CardHeader>

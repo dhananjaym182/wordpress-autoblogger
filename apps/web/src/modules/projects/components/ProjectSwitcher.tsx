@@ -9,10 +9,13 @@ export async function ProjectSwitcher() {
     return null;
   }
 
+  let state: Awaited<ReturnType<typeof getProjectSwitcherState>>;
+
   try {
-    const state = await getProjectSwitcherState(session.user.id);
-    return <ProjectSwitcherClient projects={state.projects} activeProjectId={state.activeProjectId} />;
+    state = await getProjectSwitcherState(session.user.id);
   } catch {
     return null;
   }
+
+  return <ProjectSwitcherClient projects={state.projects} activeProjectId={state.activeProjectId} />;
 }

@@ -81,7 +81,7 @@ function VerifyEmailContent() {
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md border-border/70 bg-background/80 backdrop-blur-md">
       <CardHeader className="space-y-1">
         {status === 'loading' && (
           <>
@@ -177,7 +177,7 @@ function VerifyEmailContent() {
 
 function VerifyEmailFallback() {
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md border-border/70 bg-background/80 backdrop-blur-md">
       <CardHeader className="space-y-1">
         <div className="flex items-center justify-center mb-4">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -195,16 +195,10 @@ function VerifyEmailFallback() {
 
 export default function VerifyEmailPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-muted/40">
-      <div className="mb-8">
-        <Link href="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-bold text-primary">AutoBlogger</span>
-        </Link>
-      </div>
-      
+    <section className="container mx-auto flex justify-center px-4">
       <Suspense fallback={<VerifyEmailFallback />}>
         <VerifyEmailContent />
       </Suspense>
-    </div>
+    </section>
   );
 }

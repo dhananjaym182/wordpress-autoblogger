@@ -1,11 +1,27 @@
 import { Job } from 'bullmq';
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 import { AutoClient } from '@autoblogger/wp-client';
 import { logger } from '../utils/logger.js';
 import { generateTraceId } from '../utils/trace.js';
 import { decrypt } from '../utils/crypto.js';
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL is required to initialize worker Prisma client');
+}
+
+const pool = new Pool({
+  connectionString,
+});
+
+const adapter = new PrismaPg(pool);
+
+const prisma = new PrismaClient({
+  adapter,
+});
 
 export interface PublishJobData {
   scheduledPostId: string;

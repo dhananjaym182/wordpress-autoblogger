@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -32,29 +32,62 @@ const COOKIE_CATEGORIES = {
 };
 
 export function CookieConsent() {
-  const [show, setShow] = useState(false);
+  const initialStoredConsent = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    return localStorage.getItem('cookie-consent');
+  }, []);
+
+  const [show, setShow] = useState(() => !initialStoredConsent);
   const [showPreferences, setShowPreferences] = useState(false);
-  const [preferences, setPreferences] = useState<CookiePreferences>({
-    essential: true,
-    analytics: false,
-    marketing: false,
-    timestamp: new Date().toISOString(),
+  const [preferences, setPreferences] = useState<CookiePreferences>(() => {
+    if (!initialStoredConsent) {
+      return {
+        essential: true,
+        analytics: false,
+        marketing: false,
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    try {
+      return JSON.parse(initialStoredConsent) as CookiePreferences;
+    } catch {
+      return {
+        essential: true,
+        analytics: false,
+        marketing: false,
+        timestamp: new Date().toISOString(),
+      };
+    }
   });
 
   useEffect(() => {
-    // Check if user has already made a choice
-    const stored = localStorage.getItem('cookie-consent');
-    if (!stored) {
-      setShow(true);
-    } else {
-      try {
-        const parsed = JSON.parse(stored);
-        setPreferences(parsed);
-      } catch {
-        setShow(true);
-      }
+    if (initialStoredConsent) {
+      return;
     }
-  }, []);
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== 'cookie-consent' || !event.newValue) {
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(event.newValue) as CookiePreferences;
+        setPreferences(parsed);
+        setShow(false);
+      } catch {
+        // Ignore malformed values from other tabs.
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, [initialStoredConsent]);
 
   const handleAcceptAll = () => {
     const consent: CookiePreferences = {

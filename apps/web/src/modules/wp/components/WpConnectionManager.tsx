@@ -54,12 +54,6 @@ export function WpConnectionManager({ projectId, connection }: WpConnectionManag
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    setSiteUrl(connection?.siteUrl ?? '');
-    setKeyId(connection?.keyId ?? '');
-    setUsername(connection?.wpUsername ?? '');
-  }, [connection?.id, connection?.siteUrl, connection?.keyId, connection?.wpUsername]);
-
   const handlePluginConnect = () => {
     setMessage(null);
     setError(null);
