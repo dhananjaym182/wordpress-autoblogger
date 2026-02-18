@@ -6,7 +6,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { createId } from '@/lib/id';
 import { rateLimits } from '@/lib/rate-limit';
-import { PLAN_LIMITS } from '@autoblogger/shared/constants/plans';
+import { PLAN_LIMITS } from '@autoblogger/shared';
 
 interface CreateProjectInput {
   name: string;
@@ -24,7 +24,7 @@ export async function createProject(input: CreateProjectInput) {
   }
 
   // Rate limiting
-  const rateLimitResult = await rateLimits.apiGeneral.limit(
+  const rateLimitResult = await rateLimits.apiGeneral(
     `create-project:${session.user.id}`
   );
   if (!rateLimitResult.success) {

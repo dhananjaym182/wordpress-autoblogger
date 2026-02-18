@@ -1,88 +1,50 @@
-import { betterAuth } from 'better-auth';
+import { betterAuth } from "better-auth";
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { headers } from 'next/headers';
 import { db } from './db';
-import { createId } from './id';
 
 export const auth = betterAuth({
-  database: prismaAdapter(db, {
-    provider: 'postgresql',
-  }),
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: true,
-    sendResetPassword: async ({ user, url }) => {
-      // TODO: Implement email sending
-      console.log('Reset password URL:', url);
+    baseURL: process.env.BETTER_AUTH_BASE_URL || "http://localhost:3000",
+    database: prismaAdapter(db, {
+        provider: 'postgresql',
+    }),
+    emailVerification: {
+        sendOnSignUp: true,
+        autoSignInAfterVerification: true,
+        sendVerificationEmail: async ({ user, url, token }: { user: { email: string }; url: string; token: string }, request: Request | undefined) => {
+            // In development, log the verification link
+            // The URL already contains the callbackURL parameter from the signup
+            console.log('===========================================');
+            console.log('VERIFICATION EMAIL FOR:', user.email);
+            console.log('VERIFICATION URL:', url);
+            console.log('TOKEN:', token);
+            console.log('===========================================');
+            // TODO: Send actual email via Mailjet or other email provider
+        },
+        sendResetPassword: async ({ user, url, token }: { user: { email: string }; url: string; token: string }, request: Request | undefined) => {
+            console.log('Reset password for:', user.email, 'URL:', url);
+        },
     },
-  },
-  emailVerification: {
-    sendOnSignUp: true,
-    autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url }) => {
-      // TODO: Implement email sending
-      console.log('Verification URL:', url);
+    emailAndPassword: {
+        enabled: true,
+        requireEmailVerification: true,
     },
-  },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+    socialProviders: {
+        google: {
+            clientId: process.env.GOOGLE_CLIENT_ID || "",
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET || ""
+        },
+        github: {
+            clientId: process.env.GITHUB_CLIENT_ID || "",
+            clientSecret: process.env.GITHUB_CLIENT_SECRET || ""
+        }
     },
-  },
-  session: {
-    expiresIn: 60 * 60 * 24 * 7, // 7 days
-    updateAge: 60 * 60 * 24, // 1 day
-  },
-  advanced: {
-    generateId: false,
-  },
-  callbacks: {
-    async createUser(user) {
-      // Auto-create organization for new user
-      await db.$transaction(async (tx) => {
-        const org = await tx.organization.create({
-          data: {
-            id: createId('org'),
-            name: `${user.name || user.email}'s Workspace`,
-            slug: `workspace-${createId('').slice(0, 8)}`,
-            planId: 'free',
-          },
-        });
-
-        await tx.organizationMember.create({
-          data: {
-            id: createId('mem'),
-            organizationId: org.id,
-            userId: user.id,
-            role: 'OWNER',
-          },
-        });
-
-        // Create audit log
-        await tx.auditLog.create({
-          data: {
-            id: createId('audit'),
-            organizationId: org.id,
-            userId: user.id,
-            action: 'org.create',
-            resourceType: 'organization',
-            resourceId: org.id,
-            metadata: { name: org.name },
-          },
-        });
-      });
-
-      return user;
-    },
-  },
 });
 
 export type AuthSession = typeof auth.$Infer.Session;
 
 export async function getSession() {
-  const session = await auth.api.getSession({
-    headers: headers(),
-  });
-  return session;
+    const { headers } = await import('next/headers');
+    return auth.api.getSession({
+        headers: await headers(),
+    });
 }

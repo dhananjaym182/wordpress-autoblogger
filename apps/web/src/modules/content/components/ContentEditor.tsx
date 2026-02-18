@@ -158,7 +158,7 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
     const result = await uploadFeaturedImage(formData);
     setIsImageProcessing(false);
 
-    if (result?.error) {
+    if ('error' in result) {
       setError(result.error);
       return;
     }
@@ -183,7 +183,7 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
     });
     setIsImageProcessing(false);
 
-    if (result?.error) {
+    if ('error' in result) {
       setError(result.error);
       return;
     }
@@ -206,7 +206,7 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
     });
     setIsImageProcessing(false);
 
-    if (result?.error) {
+    if ('error' in result) {
       setError(result.error);
       return;
     }

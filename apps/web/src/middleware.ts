@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { auth } from './lib/auth';
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
@@ -26,15 +25,31 @@ export async function middleware(request: NextRequest) {
   const isProtectedRoute = request.nextUrl.pathname.startsWith('/projects') ||
     request.nextUrl.pathname.startsWith('/settings') ||
     request.nextUrl.pathname.startsWith('/billing') ||
-    request.nextUrl.pathname.startsWith('/planner');
+    request.nextUrl.pathname.startsWith('/planner') ||
+    request.nextUrl.pathname.startsWith('/dashboard');
 
   const isAuthRoute = request.nextUrl.pathname.startsWith('/login') ||
     request.nextUrl.pathname.startsWith('/signup');
 
-  // Get session from Better Auth
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
+  // Get session from Better Auth via internal API call
+  let session = null;
+  if (isProtectedRoute || isAuthRoute) {
+    try {
+      // Call the session API internally
+      const sessionUrl = new URL('/api/auth/get-session', request.url);
+      const sessionResponse = await fetch(sessionUrl, {
+        headers: {
+          cookie: request.headers.get('cookie') || '',
+        },
+      });
+      if (sessionResponse.ok) {
+        session = await sessionResponse.json();
+      }
+    } catch (error) {
+      // Session check failed, treat as unauthenticated
+      console.error('Session check failed:', error);
+    }
+  }
 
   // Redirect unauthenticated users from protected routes to login
   if (isProtectedRoute && !session) {
@@ -47,7 +62,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check email verification for protected routes
-  if (isProtectedRoute && session && !session.user.emailVerifiedAt) {
+  if (isProtectedRoute && session && !session.user?.emailVerified) {
     // Allow access to verify-email page
     if (!request.nextUrl.pathname.startsWith('/verify-email')) {
       return NextResponse.redirect(new URL('/verify-email', request.url));

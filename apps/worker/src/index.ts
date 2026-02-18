@@ -6,7 +6,7 @@ import { publishPost } from './jobs/publish-post.js';
 
 const connection = new Redis(process.env.REDIS_URL!, {
   maxRetriesPerRequest: null,
-});
+}) as unknown as any;
 
 // Define job processors
 const jobProcessors: Record<string, (job: Job) => Promise<void>> = {

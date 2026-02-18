@@ -31,14 +31,17 @@ export class ErrorBoundary extends Component<Props, State> {
     this.setState({ errorInfo });
 
     // Send to Sentry if available
-    if (typeof window !== 'undefined' && (window as { Sentry?: { captureException: (error: Error, context?: unknown) => void } }).Sentry) {
-      (window as { Sentry: { captureException: (error: Error, context?: unknown) => void } }).Sentry.captureException(error, {
-        contexts: {
-          react: {
-            componentStack: errorInfo.componentStack,
+    if (typeof window !== 'undefined') {
+      const windowWithSentry = window as unknown as { Sentry?: { captureException: (error: Error, context?: unknown) => void } };
+      if (windowWithSentry.Sentry) {
+        windowWithSentry.Sentry.captureException(error, {
+          contexts: {
+            react: {
+              componentStack: errorInfo.componentStack,
+            },
           },
-        },
-      });
+        });
+      }
     }
   }
 
@@ -85,8 +88,11 @@ export function useErrorHandler() {
     console.error('Handled error:', error);
     
     // Send to Sentry
-    if (typeof window !== 'undefined' && (window as { Sentry?: { captureException: (error: unknown) => void } }).Sentry) {
-      (window as { Sentry: { captureException: (error: unknown) => void } }).Sentry.captureException(error);
+    if (typeof window !== 'undefined') {
+      const windowWithSentry = window as unknown as { Sentry?: { captureException: (error: unknown) => void } };
+      if (windowWithSentry.Sentry) {
+        windowWithSentry.Sentry.captureException(error);
+      }
     }
   };
 }

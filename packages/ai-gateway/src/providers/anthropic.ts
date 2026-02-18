@@ -1,10 +1,5 @@
 import { AIProvider, GenerateTextOptions, GenerateTextResult, AIProviderError } from '../types.js';
 
-interface AnthropicMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
 interface AnthropicResponse {
   id: string;
   type: string;
@@ -56,7 +51,7 @@ export class AnthropicProvider {
         throw new Error(`Anthropic API error: ${response.status} - ${error}`);
       }
 
-      const data: AnthropicResponse = await response.json();
+      const data = await response.json() as AnthropicResponse;
       const latency = Date.now() - startTime;
 
       return {

@@ -1,2 +1,3 @@
 export * from './types';
-export * from './constants/plans';
+export { PLANS, PLAN_LIMITS, canUseFeature, getPlanName } from './constants/plans';
+export type { PlanLimit } from './constants/plans';

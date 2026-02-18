@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { marked } from 'marked';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+// Configure marked to use synchronous parsing
 marked.setOptions({
   breaks: true,
   gfm: true,
@@ -15,7 +16,11 @@ interface PreviewPanelProps {
 }
 
 export function PreviewPanel({ title, markdown }: PreviewPanelProps) {
-  const previewHtml = useMemo(() => marked.parse(markdown || ''), [markdown]);
+  const previewHtml = useMemo(() => {
+    // Use synchronous parsing by calling marked.parse with a string
+    const result = marked.parse(markdown || '', { async: false });
+    return typeof result === 'string' ? result : '';
+  }, [markdown]);
 
   return (
     <Card>

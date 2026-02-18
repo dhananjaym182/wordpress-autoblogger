@@ -45,7 +45,7 @@ export class CoreClient {
       await this.handleError(response);
     }
 
-    return response.json();
+    return response.json() as Promise<T>;
   }
 
   private async handleError(response: Response): Promise<never> {
@@ -126,7 +126,7 @@ export class CoreClient {
         `/posts/${existingPosts[0].id}`,
         {
           method: 'PUT',
-          body: postData,
+          body: JSON.stringify(postData),
         }
       );
       postId = result.id;
@@ -135,7 +135,7 @@ export class CoreClient {
       // Create new post
       const result = await this.request<{ id: number; status: string }>('/posts', {
         method: 'POST',
-        body: postData,
+        body: JSON.stringify(postData),
       });
       postId = result.id;
       status = result.status;
@@ -207,7 +207,7 @@ export class CoreClient {
             '/categories',
             {
               method: 'POST',
-              body: { name },
+              body: JSON.stringify({ name }),
             }
           );
           categories.push(created);
@@ -231,7 +231,7 @@ export class CoreClient {
             '/tags',
             {
               method: 'POST',
-              body: { name },
+              body: JSON.stringify({ name }),
             }
           );
           tags.push(created);

@@ -68,6 +68,10 @@ export class OpenAIProvider {
       });
 
       const latency = Date.now() - startTime;
+      if (!response.data || !response.data[0]) {
+        throw new Error('No image data returned from OpenAI');
+      }
+      
       const imageData = response.data[0];
 
       return {

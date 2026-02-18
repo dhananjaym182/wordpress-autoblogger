@@ -1,190 +1,196 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { signUp } from '../lib/auth-client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Mail } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import Image from "next/image";
+import { Loader2, X } from "lucide-react";
+import { signUp } from "../lib/auth-client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
-export function SignupForm() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [verificationSent, setVerificationSent] = useState(false);
+export default function SignUp() {
+	const [firstName, setFirstName] = useState("");
+	const [lastName, setLastName] = useState("");
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [passwordConfirmation, setPasswordConfirmation] = useState("");
+	const [image, setImage] = useState<File | null>(null);
+	const [imagePreview, setImagePreview] = useState<string | null>(null);
+	const router = useRouter();
+	const [loading, setLoading] = useState(false);
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsLoading(true);
-    setError(null);
+	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			setImage(file);
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setImagePreview(reader.result as string);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
 
-    const formData = new FormData(event.currentTarget);
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+	return (
+		<Card className="z-50 rounded-md rounded-t-none max-w-md">
+			<CardHeader>
+				<CardTitle className="text-lg md:text-xl">Sign Up</CardTitle>
+				<CardDescription className="text-xs md:text-sm">
+					Enter your information to create an account
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<div className="grid gap-4">
+					<div className="grid grid-cols-2 gap-4">
+						<div className="grid gap-2">
+							<Label htmlFor="first-name">First name</Label>
+							<Input
+								id="first-name"
+								placeholder="Max"
+								required
+								onChange={(e) => {
+									setFirstName(e.target.value);
+								}}
+								value={firstName}
+							/>
+						</div>
+						<div className="grid gap-2">
+							<Label htmlFor="last-name">Last name</Label>
+							<Input
+								id="last-name"
+								placeholder="Robinson"
+								required
+								onChange={(e) => {
+									setLastName(e.target.value);
+								}}
+								value={lastName}
+							/>
+						</div>
+					</div>
+					<div className="grid gap-2">
+						<Label htmlFor="email">Email</Label>
+						<Input
+							id="email"
+							type="email"
+							placeholder="m@example.com"
+							required
+							onChange={(e) => {
+								setEmail(e.target.value);
+							}}
+							value={email}
+						/>
+					</div>
+					<div className="grid gap-2">
+						<Label htmlFor="password">Password</Label>
+						<Input
+							id="password"
+							type="password"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							autoComplete="new-password"
+							placeholder="Password"
+						/>
+					</div>
+					<div className="grid gap-2">
+						<Label htmlFor="password_confirmation">Confirm Password</Label>
+						<Input
+							id="password_confirmation"
+							type="password"
+							value={passwordConfirmation}
+							onChange={(e) => setPasswordConfirmation(e.target.value)}
+							autoComplete="new-password"
+							placeholder="Confirm Password"
+						/>
+					</div>
+					<div className="grid gap-2">
+						<Label htmlFor="image">Profile Image (optional)</Label>
+						<div className="flex items-end gap-4">
+							{imagePreview && (
+								<div className="relative w-16 h-16 rounded-sm overflow-hidden">
+									<Image
+										src={imagePreview}
+										alt="Profile preview"
+										layout="fill"
+										objectFit="cover"
+									/>
+								</div>
+							)}
+							<div className="flex items-center gap-2 w-full">
+								<Input
+									id="image"
+									type="file"
+									accept="image/*"
+									onChange={handleImageChange}
+									className="w-full"
+								/>
+								{imagePreview && (
+									<X
+										className="cursor-pointer"
+										onClick={() => {
+											setImage(null);
+											setImagePreview(null);
+										}}
+									/>
+								)}
+							</div>
+						</div>
+					</div>
+					<Button
+						type="submit"
+						className="w-full"
+						disabled={loading}
+						onClick={async () => {
+							await signUp.email({
+								email,
+								password,
+								name: `${firstName} ${lastName}`,
+								image: image ? await convertImageToBase64(image) : "",
+								callbackURL: "/dashboard",
+								fetchOptions: {
+									onResponse: () => {
+										setLoading(false);
+									},
+									onRequest: () => {
+										setLoading(true);
+									},
+									onError: (ctx) => {
+										toast.error(ctx.error.message);
+									},
+									onSuccess: () => {
+										toast.success("Account created! Please check your email to verify your account.");
+										router.push("/verify-email");
+									},
+								},
+							});
+						}}
+					>
+						{loading ? (
+							<Loader2 size={16} className="animate-spin" />
+						) : (
+							"Create your account"
+						)}
+					</Button>
+				</div>
+			</CardContent>
+		</Card>
+	);
+}
 
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const result = await signUp.email({
-        email,
-        password,
-        name,
-        callbackURL: '/projects',
-      });
-
-      if (result.error) {
-        setError(result.error.message || 'Failed to create account');
-        return;
-      }
-
-      setVerificationSent(true);
-    } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function signInWithGoogle() {
-    setIsLoading(true);
-    try {
-      await signUp.social({
-        provider: 'google',
-        callbackURL: '/projects',
-      });
-    } catch (err) {
-      setError('Failed to sign up with Google');
-      setIsLoading(false);
-    }
-  }
-
-  if (verificationSent) {
-    return (
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
-          <CardDescription>
-            We&apos;ve sent you a verification link. Please check your email to verify your account.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Once verified, you&apos;ll be able to access your dashboard.
-          </p>
-        </CardContent>
-        <CardFooter>
-          <Link href="/login" className="text-primary hover:underline text-sm">
-            Back to login
-          </Link>
-        </CardFooter>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-        <CardDescription>
-          Enter your details to get started with AutoBlogger
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="John Doe"
-              required
-              disabled={isLoading}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="name@example.com"
-              required
-              disabled={isLoading}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="••••••••"
-              required
-              disabled={isLoading}
-              minLength={8}
-            />
-            <p className="text-xs text-muted-foreground">
-              Must be at least 8 characters
-            </p>
-          </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating account...
-              </>
-            ) : (
-              'Create account'
-            )}
-          </Button>
-        </form>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
-          </div>
-        </div>
-
-        <Button
-          variant="outline"
-          type="button"
-          disabled={isLoading}
-          onClick={signInWithGoogle}
-          className="w-full"
-        >
-          <Mail className="mr-2 h-4 w-4" />
-          Google
-        </Button>
-      </CardContent>
-      <CardFooter className="flex flex-col space-y-2">
-        <div className="text-sm text-muted-foreground">
-          Already have an account?{' '}
-          <Link href="/login" className="text-primary hover:underline">
-            Sign in
-          </Link>
-        </div>
-      </CardFooter>
-    </Card>
-  );
+async function convertImageToBase64(file: File): Promise<string> {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onloadend = () => resolve(reader.result as string);
+		reader.onerror = reject;
+		reader.readAsDataURL(file);
+	});
 }

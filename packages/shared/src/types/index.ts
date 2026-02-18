@@ -161,8 +161,9 @@ export interface AiFallbackPolicy {
   updatedAt: Date;
 }
 
-// Plans
-export type PlanId = 'free' | 'starter' | 'pro';
+// Plans - PlanId is exported from constants/plans.ts
+import type { PlanId } from '../constants/plans';
+export type { PlanId };
 
 export interface Plan {
   id: PlanId;

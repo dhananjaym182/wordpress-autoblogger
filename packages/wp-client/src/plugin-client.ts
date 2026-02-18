@@ -52,7 +52,7 @@ export class PluginClient {
       await this.handleError(response);
     }
 
-    return response.json();
+    return response.json() as Promise<T>;
   }
 
   private generateSignature(
@@ -102,21 +102,21 @@ export class PluginClient {
   async upsertPost(input: UpsertPostInput): Promise<UpsertPostResult> {
     return this.request('/posts/upsert', {
       method: 'POST',
-      body: input,
+      body: JSON.stringify(input),
     });
   }
 
   async importMedia(input: ImportMediaInput): Promise<ImportMediaResult> {
     return this.request('/media/import', {
       method: 'POST',
-      body: input,
+      body: JSON.stringify(input),
     });
   }
 
   async ensureTerms(input: EnsureTermsInput): Promise<EnsureTermsResult> {
     return this.request('/terms/ensure', {
       method: 'POST',
-      body: input,
+      body: JSON.stringify(input),
     });
   }
 

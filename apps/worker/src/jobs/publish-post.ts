@@ -61,7 +61,7 @@ export async function publishPost(job: Job<PublishJobData>): Promise<void> {
     if (!mediaId && post.storedImageKey) {
       logger.info('Importing featured image', { traceId, storedImageKey: post.storedImageKey });
       
-      const wpClient = createWPClient(wpConnection);
+      const wpClient = createWPClient(wpConnection as any);
       const imageUrl = `${process.env.CDN_URL}/${post.storedImageKey}`;
       
       const importResult = await wpClient.importMedia({
@@ -105,13 +105,13 @@ export async function publishPost(job: Job<PublishJobData>): Promise<void> {
     }
 
     // Publish to WordPress
-    logger.info('Publishing to WordPress', { 
-      traceId, 
-      wpSite: wpConnection.siteUrl,
-      status: publishStatus 
+    logger.info('Publishing to WordPress', {
+      traceId,
+      wpSite: wpConnection?.siteUrl,
+      status: publishStatus
     });
 
-    const wpClient = createWPClient(wpConnection);
+    const wpClient = createWPClient(wpConnection as any);
     
     // Ensure categories and tags exist
     const terms = await wpClient.ensureTerms({

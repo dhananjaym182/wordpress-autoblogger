@@ -11,13 +11,17 @@ interface ProjectScopedInput {
   projectId: string;
 }
 
-const validateProjectAccess = async (projectId: string, userId: string) => {
+type ProjectAccessResult = 
+  | { error: string }
+  | { membership: { organizationId: string; userId: string }; project: { id: string } };
+
+const validateProjectAccess = async (projectId: string, userId: string): Promise<ProjectAccessResult> => {
   const membership = await db.organizationMember.findFirst({
     where: { userId },
   });
 
   if (!membership) {
-    return { error: 'No organization found' } as const;
+    return { error: 'No organization found' };
   }
 
   const project = await db.project.findFirst({
@@ -28,13 +32,17 @@ const validateProjectAccess = async (projectId: string, userId: string) => {
   });
 
   if (!project) {
-    return { error: 'Project not found' } as const;
+    return { error: 'Project not found' };
   }
 
-  return { membership, project } as const;
+  return { membership, project };
 };
 
-export async function uploadFeaturedImage(formData: FormData) {
+type UploadResult = 
+  | { error: string }
+  | { success: true; storedImageKey: string; previewUrl: string };
+
+export async function uploadFeaturedImage(formData: FormData): Promise<UploadResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -76,7 +84,7 @@ export async function uploadFeaturedImage(formData: FormData) {
   };
 }
 
-export async function importFeaturedImageFromUrl(input: ProjectScopedInput & { imageUrl: string }) {
+export async function importFeaturedImageFromUrl(input: ProjectScopedInput & { imageUrl: string }): Promise<UploadResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -123,7 +131,11 @@ export async function importFeaturedImageFromUrl(input: ProjectScopedInput & { i
   };
 }
 
-export async function generateFeaturedImage(input: ProjectScopedInput & { prompt: string }) {
+type GenerateResult = 
+  | { error: string }
+  | { success: true; storedImageKey: string; previewUrl: string; imageUrl: string; providerName: string };
+
+export async function generateFeaturedImage(input: ProjectScopedInput & { prompt: string }): Promise<GenerateResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

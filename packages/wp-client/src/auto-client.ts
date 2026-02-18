@@ -31,7 +31,7 @@ export class AutoClient {
       return this.client.ping();
     }
     // Core client doesn't have a ping endpoint, so we use site info
-    const info = await this.client.getSiteInfo();
+    await this.client.getSiteInfo();
     return { status: 'ok', timestamp: Date.now() };
   }
 
