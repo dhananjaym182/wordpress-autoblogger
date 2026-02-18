@@ -1,4 +1,5 @@
 import { AutoClient } from '@autoblogger/wp-client';
+import { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { decrypt } from '@/lib/crypto';
 import { getActiveMembership } from '@/api/core/organization-context';
@@ -53,6 +54,28 @@ export const testWordPressConnectionForProject = async (userId: string, projectI
     await client.ping();
     const siteInfo = await client.getSiteInfo();
     const diagnostics = await client.getDiagnostics();
+    const capabilities = diagnostics?.capabilities
+      ? {
+          posts: diagnostics.capabilities.posts,
+          media: diagnostics.capabilities.media,
+          terms: diagnostics.capabilities.terms,
+          seoMeta: diagnostics.capabilities.seoMeta,
+        }
+      : {
+          posts: true,
+          media: true,
+          terms: true,
+          seoMeta: true,
+        };
+    const detectedPlugins = diagnostics?.detectedPlugins
+      ? {
+          yoast: diagnostics.detectedPlugins.yoast ?? false,
+          rankmath: diagnostics.detectedPlugins.rankmath ?? false,
+          aioSEO: diagnostics.detectedPlugins.aioSEO ?? false,
+          wordfence: diagnostics.detectedPlugins.wordfence ?? false,
+          sucuri: diagnostics.detectedPlugins.sucuri ?? false,
+        }
+      : Prisma.JsonNull;
 
     const connection = await db.wpSiteConnection.update({
       where: { id: project.wpConnection.id },
@@ -61,15 +84,10 @@ export const testWordPressConnectionForProject = async (userId: string, projectI
         lastError: null,
         lastCheckedAt: new Date(),
         siteName: siteInfo.name,
-        capabilities: diagnostics?.capabilities ?? {
-          posts: true,
-          media: true,
-          terms: true,
-          seoMeta: true,
-        },
+        capabilities,
         wpVersion: diagnostics?.wpVersion ?? null,
         activeTheme: diagnostics?.activeTheme ?? null,
-        detectedPlugins: diagnostics?.detectedPlugins ?? null,
+        detectedPlugins,
       },
     });
 
