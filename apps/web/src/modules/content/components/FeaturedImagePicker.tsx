@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -98,7 +99,16 @@ export function FeaturedImagePicker({
         {previewUrl && (
           <div className="space-y-2">
             <Label>Preview</Label>
-            <img src={previewUrl} alt="Featured preview" className="w-full rounded-md border" />
+            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-md border">
+              <Image
+                src={previewUrl}
+                alt="Featured preview"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                unoptimized
+              />
+            </div>
           </div>
         )}
       </CardContent>

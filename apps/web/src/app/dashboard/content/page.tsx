@@ -91,7 +91,7 @@ export default async function ContentPage() {
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>{project._count.scheduledPosts} posts tracked</span>
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/dashboard/content/new?projectId=${activeProject.id}`}>Create Draft</Link>
+                      <Link href={`/dashboard/content/new?projectId=${project.id}`}>Create Draft</Link>
                     </Button>
                   </div>
                 </CardContent>

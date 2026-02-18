@@ -238,7 +238,7 @@ export function OnboardingWizard() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
               <Check className="h-8 w-8 text-green-500" />
             </div>
-            <h3 className="text-2xl font-bold">You're All Set!</h3>
+            <h3 className="text-2xl font-bold">You&apos;re All Set!</h3>
             <p className="text-muted-foreground">
               Start creating amazing content with AutoBlogger
             </p>

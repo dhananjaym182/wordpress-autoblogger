@@ -466,7 +466,7 @@ flowchart TD
 
 ### 2026-02-18 Phase update: Projects WP connection UX + sidebar readability
 
-- Status: in progress (implemented and typechecked)
+- Status: completed with validation and follow-up fixes
 
 #### Completed work
 
@@ -497,25 +497,77 @@ flowchart TD
      - `apps/web/src/components/nav-main.tsx`
      - `apps/web/src/components/app-sidebar.tsx`
 
+4. Active-project and content-flow consistency fixes completed in this pass
+   - Added active project context and project switcher flow for dashboard route family.
+   - Scoped content, planner, and jobs pages to active project by default.
+   - Added draft edit flow into content editor via `postId` hydration.
+   - Fixed per-project content card action to target each card project id (not global active id).
+   - Files:
+     - `apps/web/src/api/projects/service.ts`
+     - `apps/web/src/modules/projects/actions/set-active-project.ts`
+     - `apps/web/src/modules/projects/components/ProjectSwitcherClient.tsx`
+     - `apps/web/src/components/layout/AppShell.tsx`
+     - `apps/web/src/app/dashboard/layout.tsx`
+     - `apps/web/src/app/dashboard/content/page.tsx`
+     - `apps/web/src/app/dashboard/content/new/page.tsx`
+     - `apps/web/src/app/dashboard/planner/page.tsx`
+     - `apps/web/src/app/dashboard/jobs/page.tsx`
+     - `apps/web/src/modules/content/components/ContentEditor.tsx`
+
+5. AI generation and resilience hardening completed in this pass
+   - Added AI source mode + provider/model controls in editor.
+   - Added provider/mode compatibility enforcement in server action.
+   - Added BYOK plan/role enforcement in AI service.
+   - Hardened optional env parsing to prevent startup crashes from empty optional vars.
+   - Added dashboard-level error boundary and auth semantics fixes.
+   - Files:
+     - `apps/web/src/modules/ai/actions/generate-content.ts`
+     - `apps/web/src/api/ai/service.ts`
+     - `apps/web/src/lib/env.ts`
+     - `apps/web/src/app/dashboard/error.tsx`
+     - `apps/web/src/modules/auth/components/LoginForm.tsx`
+     - `apps/web/src/modules/auth/components/SignupForm.tsx`
+
+6. Linting baseline normalized for non-interactive checks
+   - Added ESLint config for Next.js web app.
+   - Added `eslint-config-next` dev dependency for deterministic lint runs.
+   - Addressed lint violations (`react/no-unescaped-entities`, `@next/next/no-img-element`).
+   - Files:
+     - `apps/web/.eslintrc.json`
+     - `apps/web/package.json`
+     - `apps/web/src/modules/auth/components/LoginForm.tsx`
+     - `apps/web/src/modules/onboarding/components/OnboardingWizard.tsx`
+     - `apps/web/src/modules/content/components/FeaturedImagePicker.tsx`
+
 #### Validation executed
 
 - TypeScript validation:
   - Command: `cd apps/web && npm run typecheck`
-  - Result: pass (after fixing nullability contract in `WpConnectionManager`)
-- Lint status:
+  - Result: pass.
+- Lint validation:
   - Command: `cd apps/web && npm run lint`
-  - Result: Next.js interactive ESLint setup prompt surfaced (project missing configured ESLint), so lint gate cannot yet be used as deterministic CI-style signal.
+  - Result: pass (no warnings/errors after fixes).
+- Combined gate:
+  - Command: `cd apps/web && npm run lint && npm run typecheck`
+  - Result: pass.
+- Runtime evidence from active dev server:
+  - Dashboard route families compile and resolve with authenticated data queries observed for:
+    - `/dashboard/projects`
+    - `/dashboard/content`
+    - `/dashboard/content/new`
+    - `/dashboard/planner`
+    - `/dashboard/jobs`
+    - `/dashboard/ai`
+    - `/dashboard/billing`
+    - `/dashboard/settings`
 
 #### Open blockers
 
-1. ESLint configuration is not initialized for `apps/web`, so lint checks currently enter interactive setup.
-2. Browser/runtime route smoke verification still pending in this phase (static typecheck complete).
+1. Better Auth warning remains until GitHub OAuth env vars are set (`GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`).
+2. Full end-to-end browser assertions for every dashboard action path remain a final hardening step.
 
 #### Next steps
 
-1. Decide and apply ESLint baseline configuration for non-interactive lint in CI/local.
-2. Execute runtime smoke pass on `/dashboard/projects` and key dashboard routes to validate:
-   - per-card dialog open/close reliability
-   - plugin + app-password tab accessibility and instructions visibility
-   - sidebar readability improvements in expanded and collapsed states
-3. Continue with architecture normalization tasks from Phase 1 and remaining mock-flow replacements from Phase 2.
+1. Complete final browser smoke checklist with authenticated interactions across all dashboard routes and record screenshots.
+2. Continue remaining architecture normalization and mock-replacement backlog from Phase 1/2 for non-completed sections (notably billing deep Stripe flow and remaining onboarding/planner UX parity).
+3. Close remaining route parity gaps and update this document at each phase checkpoint with blockers and acceptance status.
