@@ -1,10 +1,12 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { ChevronRight, Check, X, Clock, RefreshCw, AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Check, X, Clock, RefreshCw, AlertCircle, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import {
   Table,
   TableBody,
@@ -12,201 +14,191 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from '@/components/ui/table';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog';
 
-interface JobLog {
-  id: string
-  scheduledPostId: string
-  status: "running" | "completed" | "failed"
-  startedAt: Date
-  finishedAt?: Date
-  durationMs?: number
-  textProviderUsed?: string
-  fallbackCount: number
-  wpResponseCode?: number
+interface JobLogItem {
+  id: string;
+  scheduledPostId: string;
+  scheduledPostTitle: string;
+  projectName: string;
+  status: 'running' | 'completed' | 'failed';
+  startedAt: string;
+  finishedAt: string | null;
+  durationMs: number | null;
+  textProviderUsed: string | null;
+  imageProviderUsed: string | null;
+  fallbackCount: number;
+  wpResponseCode: number | null;
+  errorCode: string | null;
+  errorMessage: string | null;
+  traceId: string;
 }
 
-export function JobLogsList() {
-  const [logs, setLogs] = useState<JobLog[]>([
-    {
-      id: "1",
-      scheduledPostId: "post-1",
-      status: "completed",
-      startedAt: new Date(Date.now() - 3600000),
-      finishedAt: new Date(Date.now() - 3500000),
-      durationMs: 100000,
-      textProviderUsed: "OpenAI",
-      fallbackCount: 0,
-      wpResponseCode: 200,
-    },
-    {
-      id: "2",
-      scheduledPostId: "post-2",
-      status: "failed",
-      startedAt: new Date(Date.now() - 7200000),
-      finishedAt: new Date(Date.now() - 7100000),
-      durationMs: 100000,
-      textProviderUsed: "Anthropic",
-      fallbackCount: 2,
-      wpResponseCode: 500,
-    },
-    {
-      id: "3",
-      scheduledPostId: "post-3",
-      status: "running",
-      startedAt: new Date(Date.now() - 60000),
-      textProviderUsed: "OpenAI",
-      fallbackCount: 0,
-    },
-  ])
+interface JobLogsListProps {
+  logs: JobLogItem[];
+}
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <Check className="h-4 w-4 text-green-500" />
-      case "failed":
-        return <X className="h-4 w-4 text-red-500" />
-      case "running":
-        return <Clock className="h-4 w-4 text-blue-500" />
-      default:
-        return null
-    }
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case 'completed':
+      return <Check className="h-4 w-4 text-green-500" />;
+    case 'failed':
+      return <X className="h-4 w-4 text-red-500" />;
+    case 'running':
+      return <Clock className="h-4 w-4 text-blue-500" />;
+    default:
+      return null;
   }
+};
 
-  const formatDuration = (ms: number) => {
-    const seconds = Math.floor(ms / 1000)
-    if (seconds < 60) return `${seconds}s`
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
-    return `${minutes}m ${remainingSeconds}s`
-  }
+const formatDuration = (durationMs: number | null) => {
+  if (!durationMs) return '-';
+  const seconds = Math.floor(durationMs / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}m ${remainingSeconds}s`;
+};
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-    })
-  }
+const formatDate = (value: string) =>
+  new Date(value).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  });
+
+export function JobLogsList({ logs }: JobLogsListProps) {
+  const router = useRouter();
+  const [selectedLog, setSelectedLog] = useState<JobLogItem | null>(null);
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>Job Logs</CardTitle>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => router.refresh()}>
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
         </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Started</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Duration</TableHead>
-              <TableHead>Provider</TableHead>
-              <TableHead>Fallbacks</TableHead>
-              <TableHead>WP Status</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {logs.map((log) => (
-              <TableRow key={log.id}>
-                <TableCell className="text-sm">{formatDate(log.startedAt)}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {getStatusIcon(log.status)}
-                    <Badge
-                      variant={
-                        log.status === "completed"
-                          ? "default"
-                          : log.status === "failed"
-                          ? "destructive"
-                          : "secondary"
-                      }
-                    >
-                      {log.status}
-                    </Badge>
-                  </div>
-                </TableCell>
-                <TableCell className="text-sm">
-                  {log.durationMs ? formatDuration(log.durationMs) : "-"}
-                </TableCell>
-                <TableCell className="text-sm">{log.textProviderUsed || "-"}</TableCell>
-                <TableCell className="text-sm">
-                  {log.fallbackCount > 0 && (
-                    <Badge variant="outline">{log.fallbackCount}</Badge>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {log.wpResponseCode ? (
+        {logs.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Started</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Post</TableHead>
+                <TableHead>Duration</TableHead>
+                <TableHead>Provider</TableHead>
+                <TableHead>Fallbacks</TableHead>
+                <TableHead>WP</TableHead>
+                <TableHead>Details</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {logs.map((log) => (
+                <TableRow key={log.id}>
+                  <TableCell className="text-sm">{formatDate(log.startedAt)}</TableCell>
+                  <TableCell>
                     <div className="flex items-center gap-2">
-                      <Badge
-                        variant={log.wpResponseCode === 200 ? "default" : "destructive"}
-                      >
+                      {getStatusIcon(log.status)}
+                      <StatusBadge status={log.status} />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{log.scheduledPostTitle}</p>
+                      <p className="truncate text-xs text-muted-foreground">{log.projectName}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm">{formatDuration(log.durationMs)}</TableCell>
+                  <TableCell className="text-sm">
+                    {log.textProviderUsed || log.imageProviderUsed || '-'}
+                  </TableCell>
+                  <TableCell>
+                    {log.fallbackCount > 0 ? (
+                      <Badge variant="outline">{log.fallbackCount}</Badge>
+                    ) : (
+                      <span className="text-muted-foreground">0</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {log.wpResponseCode ? (
+                      <Badge variant={log.wpResponseCode < 400 ? 'default' : 'destructive'}>
                         {log.wpResponseCode}
                       </Badge>
-                      {log.wpResponseCode !== 200 && (
-                        <AlertCircle className="h-4 w-4 text-red-500" />
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Job Details</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                        <div>
-                          <span className="text-sm font-medium">Job ID:</span>
-                          <p className="text-sm text-muted-foreground mt-1">{log.id}</p>
-                        </div>
-                        <div>
-                          <span className="text-sm font-medium">Scheduled Post ID:</span>
-                          <p className="text-sm text-muted-foreground mt-1">{log.scheduledPostId}</p>
-                        </div>
-                        <div>
-                          <span className="text-sm font-medium">Status:</span>
-                          <p className="text-sm mt-1">{log.status}</p>
-                        </div>
-                        {log.finishedAt && (
-                          <div>
-                            <span className="text-sm font-medium">Duration:</span>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {formatDuration(log.durationMs || 0)}
-                            </p>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedLog(log)}>
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Job details</DialogTitle>
+                        </DialogHeader>
+                        {selectedLog ? (
+                          <div className="space-y-4 text-sm">
+                            <div>
+                              <p className="font-medium">Trace ID</p>
+                              <p className="text-muted-foreground">{selectedLog.traceId}</p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Post</p>
+                              <p className="text-muted-foreground">
+                                {selectedLog.scheduledPostTitle} ({selectedLog.projectName})
+                              </p>
+                            </div>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              <div>
+                                <p className="font-medium">Started</p>
+                                <p className="text-muted-foreground">{formatDate(selectedLog.startedAt)}</p>
+                              </div>
+                              <div>
+                                <p className="font-medium">Finished</p>
+                                <p className="text-muted-foreground">
+                                  {selectedLog.finishedAt ? formatDate(selectedLog.finishedAt) : 'Still running'}
+                                </p>
+                              </div>
+                            </div>
+                            {selectedLog.errorMessage ? (
+                              <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                                <div className="mb-1 flex items-center gap-2 font-medium">
+                                  <AlertCircle className="h-4 w-4" />
+                                  Failure details
+                                </div>
+                                <p>{selectedLog.errorCode ?? 'UNKNOWN'}: {selectedLog.errorMessage}</p>
+                              </div>
+                            ) : null}
                           </div>
-                        )}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                        ) : null}
+                      </DialogContent>
+                    </Dialog>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <p className="text-sm text-muted-foreground">No job runs yet.</p>
+        )}
       </CardContent>
     </Card>
-  )
+  );
 }
+

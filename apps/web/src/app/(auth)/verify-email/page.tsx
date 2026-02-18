@@ -69,7 +69,7 @@ function VerifyEmailContent() {
           email: session.user.email,
           callbackURL: '/dashboard',
         });
-        setResendMessage('Verification email sent! Check the server console for the link.');
+        setResendMessage('Verification email sent. Check your inbox.');
       } else {
         setError('No active session found. Please log in again.');
       }
@@ -107,7 +107,7 @@ function VerifyEmailContent() {
             </CardTitle>
             <CardDescription className="text-center">
               A verification email has been sent to your email address. 
-              Please check the server console for the verification link (development mode).
+              Please check your inbox and follow the link to continue.
             </CardDescription>
           </>
         )}

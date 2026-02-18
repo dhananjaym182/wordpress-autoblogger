@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from '../lib/auth-client';
+import { authClient } from '../lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Mail, Loader2, CheckCircle } from 'lucide-react';
@@ -14,16 +14,23 @@ export function VerifyEmailBanner({ email }: VerifyEmailBannerProps) {
   const [isResending, setIsResending] = useState(false);
   const [resent, setResent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
 
   async function resendVerification() {
+    if (cooldownUntil && Date.now() < cooldownUntil) {
+      return;
+    }
+
     setIsResending(true);
     setError(null);
 
     try {
-      // Note: Better Auth handles resending automatically when trying to sign in
-      // This is a placeholder for custom resend logic
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await authClient.sendVerificationEmail({
+        email,
+        callbackURL: '/dashboard',
+      });
       setResent(true);
+      setCooldownUntil(Date.now() + 60_000);
     } catch (err) {
       setError('Failed to resend verification email. Please try again later.');
     } finally {

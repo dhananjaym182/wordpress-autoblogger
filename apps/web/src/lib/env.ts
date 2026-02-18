@@ -8,12 +8,15 @@ const envSchema = z.object({
   REDIS_URL: z.string().url(),
 
   // Auth
-  NEXTAUTH_SECRET: z.string().min(32),
-  NEXTAUTH_URL: z.string().url(),
+  BETTER_AUTH_SECRET: z.string().min(32).optional(),
+  BETTER_AUTH_BASE_URL: z.string().url().optional(),
+  NEXT_PUBLIC_APP_URL: z.string().url(),
 
   // OAuth
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
 
   // Email
   MAILJET_API_KEY: z.string().optional(),
@@ -46,9 +49,6 @@ const envSchema = z.object({
   SENTRY_DSN: z.string().url().optional(),
   POSTHOG_API_KEY: z.string().optional(),
   POSTHOG_HOST: z.string().url().optional(),
-
-  // App
-  NEXT_PUBLIC_APP_URL: z.string().url(),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 });
 

@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import {
   Bot,
   Calendar,
@@ -105,7 +106,7 @@ const data = {
 const quickActions = [
   {
     label: "New Content",
-    href: "/dashboard/content",
+    href: "/dashboard/content/new",
     icon: Sparkles,
   },
   {
@@ -146,14 +147,14 @@ export function AppSidebar({
 
           <div className="mt-2 grid grid-cols-2 gap-1 group-data-[collapsible=icon]:hidden">
             {quickActions.map((action) => (
-              <a
+              <Link
                 key={action.label}
                 href={action.href}
                 className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium text-sidebar-foreground/90 transition hover:bg-sidebar-accent"
               >
                 <action.icon className="size-3.5" />
                 <span>{action.label}</span>
-              </a>
+              </Link>
             ))}
           </div>
         </div>

@@ -29,6 +29,7 @@ const routeLabelMap: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/dashboard/projects': 'Projects',
   '/dashboard/content': 'Content',
+  '/dashboard/content/new': 'Content',
   '/dashboard/planner': 'Planner',
   '/dashboard/ai': 'AI',
   '/dashboard/jobs': 'Jobs',

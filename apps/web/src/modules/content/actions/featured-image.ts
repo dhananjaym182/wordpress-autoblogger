@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { fetchWithSSRFProtection, isValidImageUrl, validateUrl } from '@autoblogger/security';
 import { buildGatewayForOrganization } from '@/modules/ai/lib/gateway';
 import { saveFileToUploads, saveRemoteImageToUploads } from '@/lib/storage';
+import { getActiveMembership } from '@/api/core/organization-context';
 
 interface ProjectScopedInput {
   projectId: string;
@@ -16,18 +17,12 @@ type ProjectAccessResult =
   | { membership: { organizationId: string; userId: string }; project: { id: string } };
 
 const validateProjectAccess = async (projectId: string, userId: string): Promise<ProjectAccessResult> => {
-  const membership = await db.organizationMember.findFirst({
-    where: { userId },
-  });
-
-  if (!membership) {
-    return { error: 'No organization found' };
-  }
+  const { activeMembership } = await getActiveMembership(userId);
 
   const project = await db.project.findFirst({
     where: {
       id: projectId,
-      organizationId: membership.organizationId,
+      organizationId: activeMembership.organizationId,
     },
   });
 
@@ -35,7 +30,7 @@ const validateProjectAccess = async (projectId: string, userId: string): Promise
     return { error: 'Project not found' };
   }
 
-  return { membership, project };
+  return { membership: { organizationId: activeMembership.organizationId, userId }, project };
 };
 
 type UploadResult = 

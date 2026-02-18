@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { createId } from '@/lib/id';
 import { APP_ROUTES } from '@/api/core/routes';
+import { getActiveMembership } from '@/api/core/organization-context';
 import { analyzeSeo } from '../lib/seo-analyzer';
 import { markdownToGutenberg } from '../lib/markdown-to-gutenberg';
 
@@ -38,18 +39,12 @@ export async function saveDraft(input: SaveDraftInput) {
     return { error: 'Unauthorized' };
   }
 
-  const membership = await db.organizationMember.findFirst({
-    where: { userId: session.user.id },
-  });
-
-  if (!membership) {
-    return { error: 'No organization found' };
-  }
+  const { activeMembership } = await getActiveMembership(session.user.id);
 
   const project = await db.project.findFirst({
     where: {
       id: input.projectId,
-      organizationId: membership.organizationId,
+      organizationId: activeMembership.organizationId,
     },
   });
 
@@ -102,7 +97,7 @@ export async function saveDraft(input: SaveDraftInput) {
     await db.auditLog.create({
       data: {
         id: createId('audit'),
-        organizationId: membership.organizationId,
+        organizationId: activeMembership.organizationId,
         userId: session.user.id,
         action: 'post.save',
         resourceType: 'scheduled_post',

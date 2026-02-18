@@ -1,9 +1,12 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { db } from './db';
+import { sendTransactionalEmail } from './email';
+
+const appUrl = process.env.BETTER_AUTH_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 export const auth = betterAuth({
-    baseURL: process.env.BETTER_AUTH_BASE_URL || "http://localhost:3000",
+    baseURL: appUrl,
     database: prismaAdapter(db, {
         provider: 'postgresql',
     }),
@@ -11,17 +14,36 @@ export const auth = betterAuth({
         sendOnSignUp: true,
         autoSignInAfterVerification: true,
         sendVerificationEmail: async ({ user, url, token }: { user: { email: string }; url: string; token: string }, request: Request | undefined) => {
-            // In development, log the verification link
-            // The URL already contains the callbackURL parameter from the signup
-            console.log('===========================================');
-            console.log('VERIFICATION EMAIL FOR:', user.email);
-            console.log('VERIFICATION URL:', url);
-            console.log('TOKEN:', token);
-            console.log('===========================================');
-            // TODO: Send actual email via Mailjet or other email provider
+            const safeUrl = url || `${appUrl}/verify-email`;
+            await sendTransactionalEmail({
+                to: user.email,
+                subject: 'Verify your AutoBlogger email',
+                text: `Verify your email by visiting ${safeUrl}`,
+                html: `
+                  <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+                    <h2>Verify your email</h2>
+                    <p>Click the link below to verify your AutoBlogger account.</p>
+                    <p><a href="${safeUrl}">${safeUrl}</a></p>
+                    <p>If you did not request this email, you can ignore it.</p>
+                  </div>
+                `,
+            });
         },
         sendResetPassword: async ({ user, url, token }: { user: { email: string }; url: string; token: string }, request: Request | undefined) => {
-            console.log('Reset password for:', user.email, 'URL:', url);
+            const safeUrl = url || `${appUrl}/login`;
+            await sendTransactionalEmail({
+                to: user.email,
+                subject: 'Reset your AutoBlogger password',
+                text: `Reset your password using this link: ${safeUrl}`,
+                html: `
+                  <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+                    <h2>Password reset request</h2>
+                    <p>Use the link below to reset your password.</p>
+                    <p><a href="${safeUrl}">${safeUrl}</a></p>
+                    <p>If you did not request this change, please ignore this email.</p>
+                  </div>
+                `,
+            });
         },
     },
     emailAndPassword: {

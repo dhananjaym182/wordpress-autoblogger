@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 type OnboardingStep = "plan" | "project" | "wordpress" | "content" | "complete"
 
@@ -156,20 +160,20 @@ export function OnboardingWizard() {
       case "project":
         return (
           <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Project Name</label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="onboarding-project-name">Project Name</Label>
+              <Input
+                id="onboarding-project-name"
                 type="text"
-                className="w-full rounded-md border px-3 py-2"
                 placeholder="My Awesome Blog"
                 value={data.projectName}
                 onChange={(e) => setData({ ...data, projectName: e.target.value })}
               />
             </div>
-            <div>
-              <label className="text-sm font-medium">Description (optional)</label>
-              <textarea
-                className="w-full rounded-md border px-3 py-2"
+            <div className="space-y-2">
+              <Label htmlFor="onboarding-project-description">Description (optional)</Label>
+              <Textarea
+                id="onboarding-project-description"
                 placeholder="Tell us about your blog..."
                 rows={3}
                 value={data.projectDescription}
@@ -182,49 +186,41 @@ export function OnboardingWizard() {
       case "wordpress":
         return (
           <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">WordPress URL</label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="onboarding-wp-url">WordPress URL</Label>
+              <Input
+                id="onboarding-wp-url"
                 type="url"
-                className="w-full rounded-md border px-3 py-2"
                 placeholder="https://yourblog.com"
                 value={data.wpUrl}
                 onChange={(e) => setData({ ...data, wpUrl: e.target.value })}
               />
             </div>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <input
-                  type="radio"
-                  name="wp-mode"
-                  value="plugin"
-                  checked={data.wpMode === "plugin"}
-                  onChange={() => setData({ ...data, wpMode: "plugin" })}
-                />
-                <span>Use Plugin (Recommended)</span>
-              </label>
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <input
-                  type="radio"
-                  name="wp-mode"
-                  value="app-password"
-                  checked={data.wpMode === "app-password"}
-                  onChange={() => setData({ ...data, wpMode: "app-password" })}
-                />
-                <span>Use Application Password</span>
-              </label>
-            </div>
+            <RadioGroup
+              value={data.wpMode}
+              onValueChange={(value) => setData({ ...data, wpMode: value })}
+              className="space-y-3"
+            >
+              <div className="flex items-center space-x-2 rounded-md border p-3">
+                <RadioGroupItem value="plugin" id="wp-mode-plugin" />
+                <Label htmlFor="wp-mode-plugin">Use Plugin (Recommended)</Label>
+              </div>
+              <div className="flex items-center space-x-2 rounded-md border p-3">
+                <RadioGroupItem value="app-password" id="wp-mode-app-password" />
+                <Label htmlFor="wp-mode-app-password">Use Application Password</Label>
+              </div>
+            </RadioGroup>
           </div>
         )
 
       case "content":
         return (
           <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Content Topic</label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="onboarding-content-topic">Content Topic</Label>
+              <Input
+                id="onboarding-content-topic"
                 type="text"
-                className="w-full rounded-md border px-3 py-2"
                 placeholder="e.g., Getting Started with AI Tools"
                 value={data.projectName}
                 onChange={(e) => setData({ ...data, projectName: e.target.value })}

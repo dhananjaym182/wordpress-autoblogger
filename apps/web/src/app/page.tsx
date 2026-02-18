@@ -232,6 +232,9 @@ export default function HomePage() {
             <Link href="/legal/terms" className="text-sm text-muted-foreground hover:text-foreground">
               Terms of Service
             </Link>
+            <Link href="/legal/dpa" className="text-sm text-muted-foreground hover:text-foreground">
+              DPA
+            </Link>
           </div>
         </div>
       </footer>

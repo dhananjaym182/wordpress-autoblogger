@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { markdownToGutenberg } from '@/modules/content/lib/markdown-to-gutenberg';
 import { buildGatewayForOrganization } from '../lib/gateway';
+import { getActiveMembership } from '@/api/core/organization-context';
 
 interface GenerateContentInput {
   projectId: string;
@@ -51,18 +52,12 @@ export async function generateContent(input: GenerateContentInput) {
     return { error: 'Unauthorized' };
   }
 
-  const membership = await db.organizationMember.findFirst({
-    where: { userId: session.user.id },
-  });
-
-  if (!membership) {
-    return { error: 'No organization found' };
-  }
+  const { activeMembership } = await getActiveMembership(session.user.id);
 
   const project = await db.project.findFirst({
     where: {
       id: input.projectId,
-      organizationId: membership.organizationId,
+      organizationId: activeMembership.organizationId,
     },
   });
 
@@ -70,7 +65,7 @@ export async function generateContent(input: GenerateContentInput) {
     return { error: 'Project not found' };
   }
 
-  const gatewayBundle = await buildGatewayForOrganization(membership.organizationId);
+  const gatewayBundle = await buildGatewayForOrganization(activeMembership.organizationId);
 
   if (!gatewayBundle) {
     return { error: 'No AI providers configured. Add a provider to generate content.' };
@@ -83,14 +78,14 @@ export async function generateContent(input: GenerateContentInput) {
       prompt,
       temperature: 0.7,
       maxTokens: input.wordCount ? Math.min(input.wordCount * 2, 2000) : 1200,
-      orgId: membership.organizationId,
+      orgId: activeMembership.organizationId,
     });
 
     const aiCost = estimateCost(result.usage.promptTokens, result.usage.completionTokens);
 
     await db.aiProviderUsage.create({
       data: {
-        organizationId: membership.organizationId,
+        organizationId: activeMembership.organizationId,
         providerId: result.providerId,
         providerName: result.providerName,
         requestType: 'text',

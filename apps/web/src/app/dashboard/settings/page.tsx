@@ -1,15 +1,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { PageHeader } from "@/components/ui/page-header"
 import { OrgSwitcher } from "@/modules/org/components/OrgSwitcher"
 import { SettingsActions } from "@/modules/settings/components/SettingsActions"
 
 export default function SettingsPage() {
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <OrgSwitcher />
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Settings"
+        description="Manage account lifecycle, compliance exports, and workspace preferences."
+        actions={<OrgSwitcher />}
+      />
 
       <Card>
         <CardHeader>

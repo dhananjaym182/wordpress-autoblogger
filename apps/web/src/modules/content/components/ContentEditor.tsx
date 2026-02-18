@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { saveDraft } from '../actions/save-draft';
 import { analyzeSeo } from '../lib/seo-analyzer';
@@ -260,18 +261,18 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="ai-tone">Tone</Label>
-                  <select
-                    id="ai-tone"
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    value={aiTone}
-                    onChange={(event) => setAiTone(event.target.value)}
-                  >
-                    <option value="Professional">Professional</option>
-                    <option value="Friendly">Friendly</option>
-                    <option value="Conversational">Conversational</option>
-                    <option value="Analytical">Analytical</option>
-                    <option value="Persuasive">Persuasive</option>
-                  </select>
+                  <Select value={aiTone} onValueChange={setAiTone}>
+                    <SelectTrigger id="ai-tone">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Professional">Professional</SelectItem>
+                      <SelectItem value="Friendly">Friendly</SelectItem>
+                      <SelectItem value="Conversational">Conversational</SelectItem>
+                      <SelectItem value="Analytical">Analytical</SelectItem>
+                      <SelectItem value="Persuasive">Persuasive</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ai-word-count">Target Word Count</Label>
