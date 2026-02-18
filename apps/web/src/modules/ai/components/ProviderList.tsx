@@ -50,9 +50,16 @@ interface FallbackPolicyRecord {
 interface ProviderListProps {
   providers: ProviderRecord[];
   fallbackPolicy: FallbackPolicyRecord | null;
+  canUseBYOK: boolean;
+  canConfigureManaged: boolean;
 }
 
-export function ProviderList({ providers, fallbackPolicy }: ProviderListProps) {
+export function ProviderList({
+  providers,
+  fallbackPolicy,
+  canUseBYOK,
+  canConfigureManaged,
+}: ProviderListProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [name, setName] = useState('');
   const [mode, setMode] = useState<'managed' | 'byok'>('byok');
@@ -71,6 +78,8 @@ export function ProviderList({ providers, fallbackPolicy }: ProviderListProps) {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const canCreateAnyProvider = canUseBYOK || canConfigureManaged;
 
   const textCapableProviders = useMemo(
     () => providers.filter((provider) => provider.capabilities.text && provider.enabled),
@@ -192,7 +201,7 @@ export function ProviderList({ providers, fallbackPolicy }: ProviderListProps) {
 
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button disabled={!canCreateAnyProvider}>
               <Plus className="mr-2 h-4 w-4" />
               Add Provider
             </Button>
@@ -221,10 +230,20 @@ export function ProviderList({ providers, fallbackPolicy }: ProviderListProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="byok">BYOK</SelectItem>
-                    <SelectItem value="managed">Managed</SelectItem>
+                    {canUseBYOK ? <SelectItem value="byok">BYOK</SelectItem> : null}
+                    {canConfigureManaged ? <SelectItem value="managed">Managed</SelectItem> : null}
                   </SelectContent>
                 </Select>
+                {!canUseBYOK && !canConfigureManaged ? (
+                  <p className="text-xs text-muted-foreground">
+                    AI provider management is currently unavailable for this account.
+                  </p>
+                ) : null}
+                {!canUseBYOK && mode === 'byok' ? (
+                  <p className="text-xs text-muted-foreground">
+                    BYOK is available on paid plans.
+                  </p>
+                ) : null}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="provider-base-url">Base URL</Label>
@@ -287,7 +306,14 @@ export function ProviderList({ providers, fallbackPolicy }: ProviderListProps) {
               </Button>
               <Button
                 onClick={handleCreateProvider}
-                disabled={isPending || !name || !baseUrl || !defaultModelText}
+                disabled={
+                  isPending ||
+                  !name ||
+                  !baseUrl ||
+                  !defaultModelText ||
+                  (mode === 'byok' && !canUseBYOK) ||
+                  (mode === 'managed' && !canConfigureManaged)
+                }
               >
                 {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Create Provider'}
               </Button>
@@ -396,4 +422,3 @@ export function ProviderList({ providers, fallbackPolicy }: ProviderListProps) {
     </div>
   );
 }
-

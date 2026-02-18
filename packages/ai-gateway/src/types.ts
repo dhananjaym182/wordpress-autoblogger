@@ -15,6 +15,7 @@ export interface AIProvider {
 export interface GenerateTextOptions {
   prompt: string;
   model?: string;
+  providerId?: string;
   temperature?: number;
   maxTokens?: number;
   orgId: string;

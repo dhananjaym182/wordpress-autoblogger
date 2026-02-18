@@ -1,6 +1,7 @@
 import { AppShell } from '@/components/layout/AppShell';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { getProjectSwitcherState } from '@/api/projects/service';
 
 export default async function DashboardLayout({
   children,
@@ -13,5 +14,17 @@ export default async function DashboardLayout({
     redirect('/login');
   }
 
-  return <AppShell user={session.user}>{children}</AppShell>;
+  const projectSwitcher = await getProjectSwitcherState(session.user.id);
+
+  return (
+    <AppShell
+      user={session.user}
+      projectSwitcher={{
+        projects: projectSwitcher.projects,
+        activeProjectId: projectSwitcher.activeProjectId,
+      }}
+    >
+      {children}
+    </AppShell>
+  );
 }

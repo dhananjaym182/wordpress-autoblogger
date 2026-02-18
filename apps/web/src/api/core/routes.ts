@@ -6,6 +6,7 @@ export const APP_ROUTES = {
   dashboard: '/dashboard',
   dashboardProjects: '/dashboard/projects',
   dashboardContent: '/dashboard/content',
+  dashboardContentNew: '/dashboard/content/new',
   dashboardPlanner: '/dashboard/planner',
   dashboardAi: '/dashboard/ai',
   dashboardJobs: '/dashboard/jobs',
@@ -31,10 +32,10 @@ export const DASHBOARD_REVALIDATE_PATHS = [
   APP_ROUTES.dashboard,
   APP_ROUTES.dashboardProjects,
   APP_ROUTES.dashboardContent,
+  APP_ROUTES.dashboardContentNew,
   APP_ROUTES.dashboardPlanner,
   APP_ROUTES.dashboardAi,
   APP_ROUTES.dashboardJobs,
   APP_ROUTES.dashboardBilling,
   APP_ROUTES.dashboardSettings,
 ] as const;
-

@@ -1,5 +1,40 @@
 import { z } from 'zod';
 
+const toTrimmedString = (value: unknown) => (typeof value === 'string' ? value.trim() : value);
+
+const optionalString = () =>
+  z.preprocess((value) => {
+    const normalized = toTrimmedString(value);
+    if (typeof normalized !== 'string' || normalized.length === 0) {
+      return undefined;
+    }
+    return normalized;
+  }, z.string().optional());
+
+const optionalUrl = () =>
+  z.preprocess((value) => {
+    const normalized = toTrimmedString(value);
+    if (typeof normalized !== 'string' || normalized.length === 0) {
+      return undefined;
+    }
+
+    try {
+      new URL(normalized);
+      return normalized;
+    } catch {
+      return undefined;
+    }
+  }, z.string().optional());
+
+const optionalStartsWith = (prefix: string) =>
+  z.preprocess((value) => {
+    const normalized = toTrimmedString(value);
+    if (typeof normalized !== 'string' || normalized.length === 0) {
+      return undefined;
+    }
+    return normalized.startsWith(prefix) ? normalized : undefined;
+  }, z.string().optional());
+
 const envSchema = z.object({
   // Database
   DATABASE_URL: z.string().url(),
@@ -8,47 +43,59 @@ const envSchema = z.object({
   REDIS_URL: z.string().url(),
 
   // Auth
-  BETTER_AUTH_SECRET: z.string().min(32).optional(),
-  BETTER_AUTH_BASE_URL: z.string().url().optional(),
+  BETTER_AUTH_SECRET: z.preprocess((value) => {
+    const normalized = toTrimmedString(value);
+    if (typeof normalized !== 'string' || normalized.length === 0) {
+      return undefined;
+    }
+    return normalized.length >= 32 ? normalized : undefined;
+  }, z.string().optional()),
+  BETTER_AUTH_BASE_URL: optionalUrl(),
   NEXT_PUBLIC_APP_URL: z.string().url(),
 
   // OAuth
-  GOOGLE_CLIENT_ID: z.string().optional(),
-  GOOGLE_CLIENT_SECRET: z.string().optional(),
-  GITHUB_CLIENT_ID: z.string().optional(),
-  GITHUB_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CLIENT_ID: optionalString(),
+  GOOGLE_CLIENT_SECRET: optionalString(),
+  GITHUB_CLIENT_ID: optionalString(),
+  GITHUB_CLIENT_SECRET: optionalString(),
 
   // Email
-  MAILJET_API_KEY: z.string().optional(),
-  MAILJET_SECRET_KEY: z.string().optional(),
-  MAILJET_FROM_EMAIL: z.string().email().optional(),
-  MAILJET_FROM_NAME: z.string().optional(),
+  MAILJET_API_KEY: optionalString(),
+  MAILJET_SECRET_KEY: optionalString(),
+  MAILJET_FROM_EMAIL: z.preprocess((value) => {
+    const normalized = toTrimmedString(value);
+    if (typeof normalized !== 'string' || normalized.length === 0) {
+      return undefined;
+    }
+    return /.+@.+\..+/.test(normalized) ? normalized : undefined;
+  }, z.string().optional()),
+  MAILJET_FROM_NAME: optionalString(),
 
   // Stripe
-  STRIPE_SECRET_KEY: z.string().startsWith('sk_').optional(),
-  STRIPE_WEBHOOK_SECRET: z.string().optional(),
-  STRIPE_PUBLISHABLE_KEY: z.string().startsWith('pk_').optional(),
-  STRIPE_PRICE_STARTER: z.string().optional(),
-  STRIPE_PRICE_PRO: z.string().optional(),
+  STRIPE_SECRET_KEY: optionalStartsWith('sk_'),
+  STRIPE_WEBHOOK_SECRET: optionalString(),
+  STRIPE_PUBLISHABLE_KEY: optionalStartsWith('pk_'),
+  STRIPE_PRICE_STARTER: optionalString(),
+  STRIPE_PRICE_PRO: optionalString(),
 
   // Storage
-  R2_ACCOUNT_ID: z.string().optional(),
-  R2_ACCESS_KEY_ID: z.string().optional(),
-  R2_SECRET_ACCESS_KEY: z.string().optional(),
-  R2_BUCKET: z.string().optional(),
-  CDN_URL: z.string().url().optional(),
+  R2_ACCOUNT_ID: optionalString(),
+  R2_ACCESS_KEY_ID: optionalString(),
+  R2_SECRET_ACCESS_KEY: optionalString(),
+  R2_BUCKET: optionalString(),
+  CDN_URL: optionalUrl(),
 
   // AI Providers
-  OPENAI_API_KEY: z.string().startsWith('sk-').optional(),
-  ANTHROPIC_API_KEY: z.string().startsWith('sk-ant-').optional(),
+  OPENAI_API_KEY: optionalStartsWith('sk-'),
+  ANTHROPIC_API_KEY: optionalStartsWith('sk-ant-'),
 
   // Encryption
   ENCRYPTION_KEY: z.string().length(32),
 
   // Monitoring
-  SENTRY_DSN: z.string().url().optional(),
-  POSTHOG_API_KEY: z.string().optional(),
-  POSTHOG_HOST: z.string().url().optional(),
+  SENTRY_DSN: optionalUrl(),
+  POSTHOG_API_KEY: optionalString(),
+  POSTHOG_HOST: optionalUrl(),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 });
 

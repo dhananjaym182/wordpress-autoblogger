@@ -15,6 +15,9 @@ interface GenerateContentInput {
   tone?: string;
   wordCount?: number;
   postId?: string;
+  providerId?: string;
+  model?: string;
+  sourceMode?: 'app' | 'byok';
 }
 
 const buildPrompt = (input: GenerateContentInput) => {
@@ -71,11 +74,33 @@ export async function generateContent(input: GenerateContentInput) {
     return { error: 'No AI providers configured. Add a provider to generate content.' };
   }
 
+  const providerSelection = input.providerId
+    ? gatewayBundle.providers.find((provider) => provider.id === input.providerId)
+    : null;
+
+  if (input.providerId && !providerSelection) {
+    return { error: 'Selected AI provider is unavailable or disabled.' };
+  }
+
+  if (providerSelection && !providerSelection.enabled) {
+    return { error: 'Selected AI provider is disabled.' };
+  }
+
+  if (input.sourceMode === 'byok' && providerSelection?.id.startsWith('managed-')) {
+    return { error: 'BYOK generation requires a custom provider from AI settings.' };
+  }
+
+  if (input.sourceMode === 'app' && providerSelection && !providerSelection.id.startsWith('managed-')) {
+    return { error: 'App-managed generation requires an application provider.' };
+  }
+
   const prompt = buildPrompt(input);
 
   try {
     const result = await gatewayBundle.gateway.generateText({
       prompt,
+      providerId: providerSelection?.id,
+      model: input.model || providerSelection?.defaultModelText,
       temperature: 0.7,
       maxTokens: input.wordCount ? Math.min(input.wordCount * 2, 2000) : 1200,
       orgId: activeMembership.organizationId,

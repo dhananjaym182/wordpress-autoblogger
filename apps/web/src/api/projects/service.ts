@@ -1,9 +1,24 @@
 import { PLAN_LIMITS } from '@autoblogger/shared';
+import { cookies } from 'next/headers';
 import { db } from '@/lib/db';
 import { createId } from '@/lib/id';
 import { ForbiddenError, NotFoundError } from '@/api/core/errors';
+import { getActiveMembership } from '@/api/core/organization-context';
 
 const slugRegex = /^[a-z0-9-]+$/;
+
+export const ACTIVE_PROJECT_COOKIE = 'ab_active_project';
+
+export interface ProjectSwitcherOption {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface ProjectSwitcherState {
+  projects: ProjectSwitcherOption[];
+  activeProjectId: string | null;
+}
 
 export const listProjectsForOrganization = async (organizationId: string) => {
   return db.project.findMany({
@@ -11,6 +26,37 @@ export const listProjectsForOrganization = async (organizationId: string) => {
     include: { wpConnection: true },
     orderBy: { createdAt: 'desc' },
   });
+};
+
+export const getProjectSwitcherState = async (userId: string): Promise<ProjectSwitcherState> => {
+  const { activeMembership } = await getActiveMembership(userId);
+
+  const projects = await db.project.findMany({
+    where: {
+      organizationId: activeMembership.organizationId,
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+
+  const cookieStore = await cookies();
+  const preferredProjectId = cookieStore.get(ACTIVE_PROJECT_COOKIE)?.value;
+
+  const activeProjectId =
+    projects.find((project: (typeof projects)[number]) => project.id === preferredProjectId)?.id ??
+    projects[0]?.id ??
+    null;
+
+  return {
+    projects,
+    activeProjectId,
+  };
 };
 
 export const createProjectForOrganization = async (input: {
@@ -111,4 +157,3 @@ export const deleteProjectForOrganization = async (input: {
 
   return project;
 };
-

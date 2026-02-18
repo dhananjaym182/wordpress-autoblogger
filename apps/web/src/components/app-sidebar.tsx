@@ -134,23 +134,23 @@ export function AppSidebar({
       {...props}
     >
       <SidebarHeader>
-        <div className="rounded-xl border border-sidebar-border/60 bg-sidebar-accent/30 p-2">
-          <div className="flex items-center gap-2 px-1 py-0.5">
+        <div className="rounded-xl border border-sidebar-border/60 bg-sidebar-accent/30 p-2.5">
+          <div className="flex items-center gap-2.5 px-1.5 py-1">
             <div className="flex size-8 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-primary/20">
             <FileText className="size-4" />
             </div>
-            <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-              <span className="truncate font-semibold tracking-tight">AutoBlogger</span>
+            <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
+              <span className="truncate text-[15px] font-semibold tracking-tight">AutoBlogger</span>
               <span className="truncate text-xs text-muted-foreground">AI Publishing Suite</span>
             </div>
           </div>
 
-          <div className="mt-2 grid grid-cols-2 gap-1 group-data-[collapsible=icon]:hidden">
+          <div className="mt-2.5 grid grid-cols-2 gap-1.5 group-data-[collapsible=icon]:hidden">
             {quickActions.map((action) => (
               <Link
                 key={action.label}
                 href={action.href}
-                className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium text-sidebar-foreground/90 transition hover:bg-sidebar-accent"
+                className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-sidebar-foreground/90 transition hover:bg-sidebar-accent"
               >
                 <action.icon className="size-3.5" />
                 <span>{action.label}</span>

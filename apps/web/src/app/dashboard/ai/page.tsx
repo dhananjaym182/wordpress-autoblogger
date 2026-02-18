@@ -3,10 +3,18 @@ import { OrgSwitcher } from '@/modules/org/components/OrgSwitcher';
 import { ProviderList } from '@/modules/ai/components/ProviderList';
 import { requireSession } from '@/api/core/auth-context';
 import { getAiProviderSettings } from '@/api/ai/service';
+import { PLAN_LIMITS } from '@autoblogger/shared';
+import { getActiveMembership } from '@/api/core/organization-context';
 
 export default async function AIPage() {
   const session = await requireSession();
-  const data = await getAiProviderSettings(session.user.id);
+  const [data, membership] = await Promise.all([
+    getAiProviderSettings(session.user.id),
+    getActiveMembership(session.user.id),
+  ]);
+  const limits =
+    PLAN_LIMITS[membership.activeMembership.organization.planId as keyof typeof PLAN_LIMITS] ??
+    PLAN_LIMITS.free;
 
   return (
     <div className="space-y-6">
@@ -40,8 +48,9 @@ export default async function AIPage() {
               }
             : null
         }
+        canUseBYOK={limits.allowsBYOK}
+        canConfigureManaged={['OWNER', 'ADMIN'].includes(membership.activeMembership.role)}
       />
     </div>
   );
 }
-

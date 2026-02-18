@@ -8,12 +8,15 @@ import { StatsCard } from '@/components/ui/stats-card';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { OrgSwitcher } from '@/modules/org/components/OrgSwitcher';
 import { requireSession } from '@/api/core/auth-context';
+import { requireActiveProjectForUser } from '@/api/core/project-context';
 import { getContentDashboardData } from '@/api/content/service';
 
 export default async function ContentPage() {
   const session = await requireSession();
-  const data = await getContentDashboardData(session.user.id);
-  const firstProject = data.projects[0];
+  const { activeProject } = await requireActiveProjectForUser(session.user.id);
+  const data = await getContentDashboardData(session.user.id, {
+    projectId: activeProject.id,
+  });
 
   return (
     <div className="space-y-6">
@@ -26,8 +29,8 @@ export default async function ContentPage() {
             <Button asChild>
               <Link
                 href={
-                  firstProject
-                    ? `/dashboard/content/new?projectId=${firstProject.id}`
+                  activeProject
+                    ? `/dashboard/content/new?projectId=${activeProject.id}`
                     : '/dashboard/projects'
                 }
               >
@@ -69,7 +72,7 @@ export default async function ContentPage() {
       <Card>
         <CardHeader>
           <CardTitle>Project Pipelines</CardTitle>
-          <CardDescription>Pick a project to jump directly into a new draft.</CardDescription>
+          <CardDescription>Switch active project from the header to move across pipelines.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
           {data.projects.length > 0 ? (
@@ -88,7 +91,7 @@ export default async function ContentPage() {
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>{project._count.scheduledPosts} posts tracked</span>
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/dashboard/content/new?projectId=${project.id}`}>Create Draft</Link>
+                      <Link href={`/dashboard/content/new?projectId=${activeProject.id}`}>Create Draft</Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -124,6 +127,7 @@ export default async function ContentPage() {
                   <TableHead>Project</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Updated</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -135,6 +139,13 @@ export default async function ContentPage() {
                       <StatusBadge status={post.status} />
                     </TableCell>
                     <TableCell>{new Date(post.updatedAt).toLocaleString()}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/dashboard/content/new?projectId=${post.project.id}&postId=${post.id}`}>
+                          Edit Draft
+                        </Link>
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

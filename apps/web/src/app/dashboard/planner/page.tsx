@@ -2,11 +2,15 @@ import { PageHeader } from '@/components/ui/page-header';
 import { OrgSwitcher } from '@/modules/org/components/OrgSwitcher';
 import { CalendarView } from '@/modules/planner/components/CalendarView';
 import { requireSession } from '@/api/core/auth-context';
+import { requireActiveProjectForUser } from '@/api/core/project-context';
 import { getPlannerData } from '@/api/planner/service';
 
 export default async function PlannerPage() {
   const session = await requireSession();
-  const data = await getPlannerData(session.user.id);
+  const { activeProject } = await requireActiveProjectForUser(session.user.id);
+  const data = await getPlannerData(session.user.id, {
+    projectId: activeProject.id,
+  });
 
   return (
     <div className="space-y-6">
@@ -33,4 +37,3 @@ export default async function PlannerPage() {
     </div>
   );
 }
-

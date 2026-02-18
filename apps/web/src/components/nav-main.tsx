@@ -42,7 +42,9 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
+      <SidebarGroupLabel className="px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/70">
+        {label}
+      </SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
           if (!item.items?.length) {
@@ -52,7 +54,7 @@ export function NavMain({
                   asChild
                   tooltip={item.title}
                   isActive={isActive(item.url)}
-                  className="data-[active=true]:shadow-sm"
+                  className="h-9 gap-2.5 px-3 text-[13px] font-medium leading-none data-[active=true]:shadow-sm"
                 >
                   <Link href={item.url}>
                     {item.icon && <item.icon />}
@@ -75,7 +77,7 @@ export function NavMain({
                   <SidebarMenuButton
                     tooltip={item.title}
                     isActive={isActive(item.url)}
-                    className="data-[active=true]:shadow-sm"
+                    className="h-9 gap-2.5 px-3 text-[13px] font-medium leading-none data-[active=true]:shadow-sm"
                   >
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
@@ -86,7 +88,11 @@ export function NavMain({
                   <SidebarMenuSub>
                     {item.items?.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild isActive={isActive(subItem.url)}>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={isActive(subItem.url)}
+                          className="h-8 px-2.5 text-xs font-medium"
+                        >
                           <Link href={subItem.url}>
                             <span>{subItem.title}</span>
                           </Link>

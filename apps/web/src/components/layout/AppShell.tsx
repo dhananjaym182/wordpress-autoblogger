@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { ProjectSwitcherClient } from '@/modules/projects/components/ProjectSwitcherClient';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -22,6 +23,14 @@ interface AppShellProps {
     email: string;
     name?: string | null;
     image?: string | null;
+  };
+  projectSwitcher?: {
+    projects: Array<{
+      id: string;
+      name: string;
+      slug: string;
+    }>;
+    activeProjectId: string | null;
   };
 }
 
@@ -37,7 +46,7 @@ const routeLabelMap: Record<string, string> = {
   '/dashboard/settings': 'Settings',
 };
 
-export function AppShell({ children, user }: AppShellProps) {
+export function AppShell({ children, user, projectSwitcher }: AppShellProps) {
   const pathname = usePathname();
   const currentLabel = routeLabelMap[pathname ?? '/dashboard'] ?? 'Dashboard';
 
@@ -71,6 +80,12 @@ export function AppShell({ children, user }: AppShellProps) {
           </div>
 
           <div className="ml-2 flex items-center gap-2">
+            <div className="hidden lg:block">
+              <ProjectSwitcherClient
+                projects={projectSwitcher?.projects ?? []}
+                activeProjectId={projectSwitcher?.activeProjectId ?? null}
+              />
+            </div>
             <ThemeToggle />
           </div>
         </header>

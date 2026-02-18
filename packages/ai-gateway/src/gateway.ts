@@ -49,7 +49,7 @@ export class AIGateway {
   }
 
   async generateText(options: GenerateTextOptions): Promise<GenerateTextResult> {
-    const chain = this.fallbackChain.text;
+    const chain = options.providerId ? [options.providerId] : this.fallbackChain.text;
     const errors: AIProviderError[] = [];
 
     for (const providerId of chain) {

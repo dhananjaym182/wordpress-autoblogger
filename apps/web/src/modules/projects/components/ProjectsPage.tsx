@@ -32,6 +32,19 @@ import {
 } from '@/components/ui/alert-dialog';
 import { createProject } from '@/modules/projects/actions/create-project';
 import { deleteProject } from '@/modules/projects/actions/delete-project';
+import { setActiveProject } from '@/modules/projects/actions/set-active-project';
+import { WpConnectionManager } from '@/modules/wp/components/WpConnectionManager';
+
+interface ProjectWpConnection {
+  id: string;
+  status: string | null;
+  mode: string | null;
+  siteUrl: string | null;
+  lastError: string | null;
+  lastCheckedAt: string | null;
+  keyId: string | null;
+  wpUsername: string | null;
+}
 
 interface ProjectItem {
   id: string;
@@ -39,12 +52,12 @@ interface ProjectItem {
   slug: string;
   description: string | null;
   createdAt: string;
-  wpStatus: string | null;
-  wpSiteUrl: string | null;
+  wpConnection: ProjectWpConnection | null;
 }
 
 interface ProjectsPageProps {
   projects: ProjectItem[];
+  activeProjectId?: string | null;
 }
 
 const statusToVariant = (status: string | null): 'default' | 'secondary' | 'destructive' | 'outline' => {
@@ -62,7 +75,7 @@ const normalizeSlug = (value: string) =>
     .replace(/\\s+/g, '-')
     .replace(/-+/g, '-');
 
-export function ProjectsPage({ projects }: ProjectsPageProps) {
+export function ProjectsPage({ projects, activeProjectId }: ProjectsPageProps) {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [name, setName] = useState('');
@@ -118,6 +131,22 @@ export function ProjectsPage({ projects }: ProjectsPageProps) {
       }
 
       setMessage('Project deleted successfully.');
+      router.refresh();
+    });
+  };
+
+  const handleSetActiveProject = (projectId: string) => {
+    startTransition(async () => {
+      setMessage(null);
+      setError(null);
+
+      const result = await setActiveProject(projectId);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+
+      setMessage('Active project updated.');
       router.refresh();
     });
   };
@@ -215,13 +244,39 @@ export function ProjectsPage({ projects }: ProjectsPageProps) {
                     <CardDescription>/{project.slug}</CardDescription>
                     {project.description && <p className="text-sm text-muted-foreground">{project.description}</p>}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={statusToVariant(project.wpStatus)}>
-                      {project.wpStatus ?? 'not connected'}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={statusToVariant(project.wpConnection?.status ?? null)}>
+                      {project.wpConnection?.status ?? 'not connected'}
                     </Badge>
+                    <Button
+                      size="sm"
+                      variant={project.id === activeProjectId ? 'default' : 'outline'}
+                      onClick={() => handleSetActiveProject(project.id)}
+                      disabled={isPending}
+                    >
+                      {project.id === activeProjectId ? 'Active Project' : 'Set Active'}
+                    </Button>
+
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="sm" variant="secondary">
+                          Connect WordPress
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl">
+                        <DialogHeader>
+                          <DialogTitle>WordPress Connection</DialogTitle>
+                          <DialogDescription>
+                            Configure secure publishing access for <span className="font-medium text-foreground">{project.name}</span>.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <WpConnectionManager projectId={project.id} connection={project.wpConnection} />
+                      </DialogContent>
+                    </Dialog>
+
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="icon">
+                        <Button variant="outline" size="icon" aria-label={`Delete ${project.name}`}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
@@ -246,7 +301,7 @@ export function ProjectsPage({ projects }: ProjectsPageProps) {
               <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                   <Link2 className="h-4 w-4" />
-                  <span>{project.wpSiteUrl ?? 'WordPress not connected yet'}</span>
+                  <span>{project.wpConnection?.siteUrl ?? 'WordPress not connected yet'}</span>
                 </div>
                 <span>Created {new Date(project.createdAt).toLocaleDateString()}</span>
               </CardContent>
@@ -272,4 +327,3 @@ export function ProjectsPage({ projects }: ProjectsPageProps) {
     </div>
   );
 }
-

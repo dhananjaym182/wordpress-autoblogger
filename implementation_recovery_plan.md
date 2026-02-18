@@ -464,3 +464,58 @@ flowchart TD
 - Blockers: code mode required for implementation and runtime verification
 - Next: execute Phase 0 then Phase 1 immediately after mode switch
 
+### 2026-02-18 Phase update: Projects WP connection UX + sidebar readability
+
+- Status: in progress (implemented and typechecked)
+
+#### Completed work
+
+1. Project-card WordPress connection dialog integrated on `/dashboard/projects`
+   - Added dedicated **Connect WordPress** action per project card.
+   - Embedded connection management into a full dialog for project-scoped setup.
+   - Updated route-to-module data contract to pass full connection payload.
+   - Files:
+     - `apps/web/src/app/dashboard/projects/page.tsx`
+     - `apps/web/src/modules/projects/components/ProjectsPage.tsx`
+
+2. WordPress connection manager upgraded from split cards to guided tabbed flow
+   - Added tabs for:
+     - Plugin Pairing (HMAC)
+     - Username + Application Password
+   - Added step-by-step setup instructions via accordion in both tabs.
+   - Added stronger field validation and disabled-submit states.
+   - Added refresh after save/test/disconnect to keep project status card in sync.
+   - File:
+     - `apps/web/src/modules/wp/components/WpConnectionManager.tsx`
+
+3. Sidebar readability improvements (while preserving collapsible model)
+   - Increased desktop sidebar width token from `16rem` to `18rem`.
+   - Improved nav label typography and spacing hierarchy.
+   - Improved sidebar header and quick-action spacing for denser but clearer layout.
+   - Files:
+     - `apps/web/src/components/ui/sidebar.tsx`
+     - `apps/web/src/components/nav-main.tsx`
+     - `apps/web/src/components/app-sidebar.tsx`
+
+#### Validation executed
+
+- TypeScript validation:
+  - Command: `cd apps/web && npm run typecheck`
+  - Result: pass (after fixing nullability contract in `WpConnectionManager`)
+- Lint status:
+  - Command: `cd apps/web && npm run lint`
+  - Result: Next.js interactive ESLint setup prompt surfaced (project missing configured ESLint), so lint gate cannot yet be used as deterministic CI-style signal.
+
+#### Open blockers
+
+1. ESLint configuration is not initialized for `apps/web`, so lint checks currently enter interactive setup.
+2. Browser/runtime route smoke verification still pending in this phase (static typecheck complete).
+
+#### Next steps
+
+1. Decide and apply ESLint baseline configuration for non-interactive lint in CI/local.
+2. Execute runtime smoke pass on `/dashboard/projects` and key dashboard routes to validate:
+   - per-card dialog open/close reliability
+   - plugin + app-password tab accessibility and instructions visibility
+   - sidebar readability improvements in expanded and collapsed states
+3. Continue with architecture normalization tasks from Phase 1 and remaining mock-flow replacements from Phase 2.

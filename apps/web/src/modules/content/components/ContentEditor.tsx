@@ -22,37 +22,97 @@ import {
   uploadFeaturedImage,
 } from '../actions/featured-image';
 
+type GenerationSourceMode = 'app' | 'byok';
+
 interface ContentEditorProps {
   projectId: string;
   projectName: string;
   backHref: string;
+  initialPostId?: string;
+  initialTitle?: string | null;
+  initialMarkdown?: string | null;
+  initialExcerpt?: string | null;
+  initialFocusKeyword?: string | null;
+  initialMetaTitle?: string | null;
+  initialMetaDescription?: string | null;
+  initialCategories?: string[];
+  initialTags?: string[];
+  initialFeaturedImage?: {
+    mode?: string | null;
+    source?: string | null;
+    prompt?: string | null;
+    storedKey?: string | null;
+  };
+  availableProviders?: Array<{
+    id: string;
+    name: string;
+    mode: 'managed' | 'byok';
+    defaultModelText: string;
+    enabled: boolean;
+  }>;
 }
 
-export function ContentEditor({ projectId, projectName, backHref }: ContentEditorProps) {
-  const [title, setTitle] = useState('');
-  const [markdown, setMarkdown] = useState('');
-  const [excerpt, setExcerpt] = useState('');
-  const [focusKeyword, setFocusKeyword] = useState('');
-  const [metaTitle, setMetaTitle] = useState('');
-  const [metaDescription, setMetaDescription] = useState('');
-  const [categories, setCategories] = useState('');
-  const [tags, setTags] = useState('');
+export function ContentEditor({
+  projectId,
+  projectName,
+  backHref,
+  initialPostId,
+  initialTitle,
+  initialMarkdown,
+  initialExcerpt,
+  initialFocusKeyword,
+  initialMetaTitle,
+  initialMetaDescription,
+  initialCategories,
+  initialTags,
+  initialFeaturedImage,
+  availableProviders = [],
+}: ContentEditorProps) {
+  const [title, setTitle] = useState(initialTitle ?? '');
+  const [markdown, setMarkdown] = useState(initialMarkdown ?? '');
+  const [excerpt, setExcerpt] = useState(initialExcerpt ?? '');
+  const [focusKeyword, setFocusKeyword] = useState(initialFocusKeyword ?? '');
+  const [metaTitle, setMetaTitle] = useState(initialMetaTitle ?? '');
+  const [metaDescription, setMetaDescription] = useState(initialMetaDescription ?? '');
+  const [categories, setCategories] = useState((initialCategories ?? []).join(', '));
+  const [tags, setTags] = useState((initialTags ?? []).join(', '));
   const [featuredImage, setFeaturedImage] = useState({
-    mode: '',
-    source: '',
-    prompt: '',
-    storedKey: '',
-    previewUrl: '',
+    mode: initialFeaturedImage?.mode ?? '',
+    source: initialFeaturedImage?.source ?? '',
+    prompt: initialFeaturedImage?.prompt ?? '',
+    storedKey: initialFeaturedImage?.storedKey ?? '',
+    previewUrl: initialFeaturedImage?.source ?? '',
   });
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiTone, setAiTone] = useState('Professional');
   const [aiWordCount, setAiWordCount] = useState(900);
-  const [postId, setPostId] = useState<string | null>(null);
+  const [aiSourceMode, setAiSourceMode] = useState<GenerationSourceMode>('app');
+  const [postId, setPostId] = useState<string | null>(initialPostId ?? null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isGenerating, startGenerating] = useTransition();
   const [isImageProcessing, setIsImageProcessing] = useState(false);
+
+  const providerOptions = useMemo(
+    () =>
+      availableProviders.filter((provider) => {
+        if (!provider.enabled) {
+          return false;
+        }
+
+        if (aiSourceMode === 'app') {
+          return provider.mode === 'managed';
+        }
+
+        return provider.mode === 'byok';
+      }),
+    [availableProviders, aiSourceMode]
+  );
+
+  const [aiProviderId, setAiProviderId] = useState<string>('');
+  const selectedProvider = providerOptions.find((provider) => provider.id === aiProviderId) ?? providerOptions[0] ?? null;
+  const [aiModel, setAiModel] = useState<string>('');
 
   const analysis = useMemo(
     () =>
@@ -97,6 +157,13 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
       }
 
       setMessage('Draft saved successfully.');
+
+      if (result?.post?.id) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('projectId', projectId);
+        url.searchParams.set('postId', result.post.id);
+        window.history.replaceState(null, '', url.toString());
+      }
     });
   };
 
@@ -132,6 +199,9 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
         tone: aiTone,
         wordCount: aiWordCount,
         prompt: aiPrompt || undefined,
+        sourceMode: aiSourceMode,
+        providerId: selectedProvider?.id,
+        model: aiModel || selectedProvider?.defaultModelText,
       });
 
       if (result?.error) {
@@ -230,7 +300,7 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">New Post</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{postId ? 'Edit Post' : 'New Post'}</h1>
             <p className="text-muted-foreground">Writing for {projectName}</p>
           </div>
         </div>
@@ -260,6 +330,33 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
+                  <Label htmlFor="ai-source-mode">AI Source</Label>
+                  <Select value={aiSourceMode} onValueChange={(value) => setAiSourceMode(value as GenerationSourceMode)}>
+                    <SelectTrigger id="ai-source-mode">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="app">Application Provider</SelectItem>
+                      <SelectItem value="byok">My BYOK Provider</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ai-provider">Provider</Label>
+                  <Select value={selectedProvider?.id ?? ''} onValueChange={setAiProviderId}>
+                    <SelectTrigger id="ai-provider">
+                      <SelectValue placeholder="Select provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {providerOptions.map((provider) => (
+                        <SelectItem key={provider.id} value={provider.id}>
+                          {provider.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="ai-tone">Tone</Label>
                   <Select value={aiTone} onValueChange={setAiTone}>
                     <SelectTrigger id="ai-tone">
@@ -285,6 +382,15 @@ export function ContentEditor({ projectId, projectName, backHref }: ContentEdito
                     onChange={(event) => setAiWordCount(Number(event.target.value))}
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ai-model">Model</Label>
+                <Input
+                  id="ai-model"
+                  value={aiModel}
+                  onChange={(event) => setAiModel(event.target.value)}
+                  placeholder={selectedProvider?.defaultModelText ?? 'Enter model name'}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="ai-prompt">Prompt (optional)</Label>

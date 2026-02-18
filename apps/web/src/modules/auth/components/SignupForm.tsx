@@ -50,7 +50,34 @@ export default function SignUp() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
-				<div className="grid gap-4">
+				<form
+					className="grid gap-4"
+					onSubmit={async (event) => {
+						event.preventDefault();
+						await signUp.email({
+							email,
+							password,
+							name: `${firstName} ${lastName}`,
+							image: image ? await convertImageToBase64(image) : "",
+							callbackURL: "/dashboard",
+							fetchOptions: {
+								onResponse: () => {
+									setLoading(false);
+								},
+								onRequest: () => {
+									setLoading(true);
+								},
+								onError: (ctx) => {
+									toast.error(ctx.error.message);
+								},
+								onSuccess: () => {
+									toast.success("Account created! Please check your email to verify your account.");
+									router.push("/verify-email");
+								},
+							},
+						});
+					}}
+				>
 					<div className="grid grid-cols-2 gap-4">
 						<div className="grid gap-2">
 							<Label htmlFor="first-name">First name</Label>
@@ -149,30 +176,6 @@ export default function SignUp() {
 						type="submit"
 						className="w-full"
 						disabled={loading}
-						onClick={async () => {
-							await signUp.email({
-								email,
-								password,
-								name: `${firstName} ${lastName}`,
-								image: image ? await convertImageToBase64(image) : "",
-								callbackURL: "/dashboard",
-								fetchOptions: {
-									onResponse: () => {
-										setLoading(false);
-									},
-									onRequest: () => {
-										setLoading(true);
-									},
-									onError: (ctx) => {
-										toast.error(ctx.error.message);
-									},
-									onSuccess: () => {
-										toast.success("Account created! Please check your email to verify your account.");
-										router.push("/verify-email");
-									},
-								},
-							});
-						}}
 					>
 						{loading ? (
 							<Loader2 size={16} className="animate-spin" />
@@ -180,7 +183,7 @@ export default function SignUp() {
 							"Create your account"
 						)}
 					</Button>
-				</div>
+				</form>
 			</CardContent>
 		</Card>
 	);

@@ -10,9 +10,14 @@ interface CreateScheduledPostInput {
   desiredStatus: 'draft' | 'publish';
 }
 
-export const getPlannerData = async (userId: string) => {
+interface PlannerDataOptions {
+  projectId?: string | null;
+}
+
+export const getPlannerData = async (userId: string, options: PlannerDataOptions = {}) => {
   const { activeMembership } = await getActiveMembership(userId);
   const organizationId = activeMembership.organizationId;
+  const scopedProjectId = options.projectId ?? null;
 
   const [projects, scheduledPosts] = await Promise.all([
     db.project.findMany({
@@ -27,6 +32,7 @@ export const getPlannerData = async (userId: string) => {
     db.scheduledPost.findMany({
       where: {
         project: { organizationId },
+        ...(scopedProjectId ? { projectId: scopedProjectId } : {}),
       },
       select: {
         id: true,
@@ -48,7 +54,7 @@ export const getPlannerData = async (userId: string) => {
     }),
   ]);
 
-  return { projects, scheduledPosts };
+  return { projects, scheduledPosts, activeProjectId: scopedProjectId };
 };
 
 export const createScheduledPost = async (userId: string, input: CreateScheduledPostInput) => {
@@ -172,4 +178,3 @@ export const deleteScheduledPost = async (userId: string, postId: string) => {
     },
   });
 };
-

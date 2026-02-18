@@ -33,6 +33,12 @@ export class NotConfiguredError extends AppError {
   }
 }
 
+export class ValidationError extends AppError {
+  constructor(message = 'Validation failed') {
+    super(message, 'VALIDATION_ERROR', 400);
+  }
+}
+
 export const toActionError = (error: unknown, fallback: string) => {
   if (error instanceof AppError) {
     return error.message;
@@ -44,4 +50,3 @@ export const toActionError = (error: unknown, fallback: string) => {
 
   return fallback;
 };
-

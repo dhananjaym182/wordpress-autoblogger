@@ -1,8 +1,9 @@
 import { db } from '@/lib/db';
 import { encrypt, decrypt } from '@/lib/crypto';
 import { createId } from '@/lib/id';
-import { NotFoundError } from '@/api/core/errors';
+import { NotFoundError, ValidationError } from '@/api/core/errors';
 import { getActiveMembership } from '@/api/core/organization-context';
+import { PLAN_LIMITS } from '@autoblogger/shared';
 
 interface CreateAiProviderInput {
   name: string;
@@ -14,6 +15,9 @@ interface CreateAiProviderInput {
   supportsText: boolean;
   supportsImage: boolean;
 }
+
+const getOrganizationPlanLimits = (planId: string) =>
+  PLAN_LIMITS[planId as keyof typeof PLAN_LIMITS] ?? PLAN_LIMITS.free;
 
 export const getAiProviderSettings = async (userId: string) => {
   const { activeMembership } = await getActiveMembership(userId);
@@ -38,6 +42,17 @@ export const getAiProviderSettings = async (userId: string) => {
 
 export const createAiProvider = async (userId: string, input: CreateAiProviderInput) => {
   const { activeMembership } = await getActiveMembership(userId);
+  const planLimits = getOrganizationPlanLimits(activeMembership.organization.planId);
+
+  if (input.mode === 'byok' && !planLimits.allowsBYOK) {
+    throw new ValidationError('BYOK providers are available on Starter and Pro plans. Upgrade to continue.');
+  }
+
+  if (input.mode === 'managed') {
+    if (!['OWNER', 'ADMIN'].includes(activeMembership.role)) {
+      throw new ValidationError('Only workspace owners/admins can add app-managed providers.');
+    }
+  }
 
   const provider = await db.aiEndpoint.create({
     data: {

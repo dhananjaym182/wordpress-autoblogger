@@ -29,7 +29,30 @@ export default function SignIn() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
-				<div className="grid gap-4">
+				<form
+					className="grid gap-4"
+					onSubmit={async (event) => {
+						event.preventDefault();
+						setError(null);
+						setLoading(true);
+						try {
+							const result = await signIn.email({
+								email,
+								password,
+								rememberMe,
+							});
+							if (result.error) {
+								setError(result.error.message || "Failed to sign in");
+							} else {
+								router.push("/dashboard");
+							}
+						} catch {
+							setError("An unexpected error occurred");
+						} finally {
+							setLoading(false);
+						}
+					}}
+				>
 					{error && (
 						<div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
 							{error}
@@ -80,26 +103,6 @@ export default function SignIn() {
 						type="submit"
 						className="w-full"
 						disabled={loading}
-						onClick={async () => {
-							setError(null);
-							setLoading(true);
-							try {
-								const result = await signIn.email({
-									email,
-									password,
-									rememberMe,
-								});
-								if (result.error) {
-									setError(result.error.message || "Failed to sign in");
-								} else {
-									router.push("/dashboard");
-								}
-							} catch (err) {
-								setError("An unexpected error occurred");
-							} finally {
-								setLoading(false);
-							}
-						}}
 					>
 						{loading ? (
 							<Loader2 size={16} className="animate-spin" />
@@ -165,7 +168,7 @@ export default function SignIn() {
 							Sign up
 						</Link>
 					</div>
-				</div>
+				</form>
 			</CardContent>
 		</Card>
 	);
