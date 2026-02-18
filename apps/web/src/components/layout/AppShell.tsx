@@ -27,6 +27,7 @@ interface AppShellProps {
 
 const routeLabelMap: Record<string, string> = {
   '/dashboard': 'Dashboard',
+  '/dashboard/projects': 'Projects',
   '/dashboard/content': 'Content',
   '/dashboard/planner': 'Planner',
   '/dashboard/ai': 'AI',

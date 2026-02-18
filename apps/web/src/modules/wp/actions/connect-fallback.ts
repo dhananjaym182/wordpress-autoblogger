@@ -8,6 +8,7 @@ import { createId } from '@/lib/id';
 import { encrypt } from '@/lib/crypto';
 import { getProjectForUser } from '../lib/project-access';
 import { normalizeSiteUrl } from '../lib/normalize-url';
+import { APP_ROUTES } from '@/api/core/routes';
 
 interface ConnectFallbackInput {
   projectId: string;
@@ -72,8 +73,9 @@ export async function connectFallback(input: ConnectFallbackInput) {
     },
   });
 
-  revalidatePath(`/projects/${access.project.id}`);
-  revalidatePath(`/projects/${access.project.id}/connection`);
+  revalidatePath(APP_ROUTES.dashboardProjects);
+  revalidatePath(APP_ROUTES.dashboardContent);
+  revalidatePath(APP_ROUTES.dashboardSettings);
 
   return { success: true, connection };
 }

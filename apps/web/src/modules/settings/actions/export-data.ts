@@ -1,22 +1,13 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { requireSession } from '@/api/core/auth-context';
 
 export async function exportUserData() {
-  const session = await auth.api.getSession({
-    headers: headers(),
-  });
-
-  if (!session?.user) {
-    throw new Error('Unauthorized');
-  }
-
-  const userId = session.user.id;
+  const session = await requireSession();
 
   const user = await db.user.findUnique({
-    where: { id: userId },
+    where: { id: session.user.id },
     include: {
       memberships: {
         include: {
@@ -73,8 +64,10 @@ export async function exportUserData() {
     throw new Error('User not found');
   }
 
-  // Sanitize and prepare export data
-  const exportData = {
+  type Membership = (typeof user.memberships)[number];
+  type Project = Membership['organization']['projects'][number];
+
+  return {
     exportInfo: {
       generatedAt: new Date().toISOString(),
       version: '1.0',
@@ -88,7 +81,7 @@ export async function exportUserData() {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     },
-    organizations: user.memberships.map((membership) => ({
+    organizations: user.memberships.map((membership: Membership) => ({
       id: membership.organization.id,
       name: membership.organization.name,
       slug: membership.organization.slug,
@@ -96,7 +89,7 @@ export async function exportUserData() {
       planId: membership.organization.planId,
       planStatus: membership.organization.planStatus,
       joinedAt: membership.createdAt,
-      projects: membership.organization.projects.map((project) => ({
+      projects: membership.organization.projects.map((project: Project) => ({
         id: project.id,
         name: project.name,
         slug: project.slug,
@@ -111,6 +104,5 @@ export async function exportUserData() {
       aiEndpoints: membership.organization.aiEndpoints,
     })),
   };
-
-  return exportData;
 }
+

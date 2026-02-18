@@ -7,6 +7,7 @@ import {
   Crown,
   FileSearch,
   FileText,
+  FolderKanban,
   LayoutDashboard,
   Settings,
   Sparkles,
@@ -32,10 +33,20 @@ type AppSidebarUser = {
 const data = {
   navMain: [
     {
+      title: "Projects",
+      url: "/dashboard/projects",
+      icon: FolderKanban,
+      items: [
+        {
+          title: "Project Directory",
+          url: "/dashboard/projects",
+        },
+      ],
+    },
+    {
       title: "Content",
       url: "/dashboard/content",
       icon: LayoutDashboard,
-      isActive: true,
       items: [
         {
           title: "Content Dashboard",

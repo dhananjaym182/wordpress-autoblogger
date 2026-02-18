@@ -1,69 +1,29 @@
 'use server';
 
-import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { createId } from '@/lib/id';
+import { APP_ROUTES } from '@/api/core/routes';
+import { requireSession } from '@/api/core/auth-context';
+import { getActiveMembership } from '@/api/core/organization-context';
+import { deleteProjectForOrganization } from '@/api/projects/service';
+import { toActionError } from '@/api/core/errors';
 
 export async function deleteProject(projectId: string) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    return { error: 'Unauthorized' };
-  }
-
-  // Get user's organization
-  const membership = await db.organizationMember.findFirst({
-    where: { userId: session.user.id },
-    include: { organization: true },
-  });
-
-  if (!membership) {
-    return { error: 'No organization found' };
-  }
-
-  // Verify project belongs to user's organization
-  const project = await db.project.findFirst({
-    where: {
-      id: projectId,
-      organizationId: membership.organizationId,
-    },
-  });
-
-  if (!project) {
-    return { error: 'Project not found' };
-  }
-
-  // Check permissions (only OWNER and ADMIN can delete)
-  if (!['OWNER', 'ADMIN'].includes(membership.role)) {
-    return { error: 'You do not have permission to delete this project' };
-  }
-
   try {
-    await db.project.delete({
-      where: { id: projectId },
+    const session = await requireSession();
+    const { activeMembership } = await getActiveMembership(session.user.id);
+
+    await deleteProjectForOrganization({
+      organizationId: activeMembership.organizationId,
+      userId: session.user.id,
+      role: activeMembership.role,
+      projectId,
     });
 
-    // Create audit log
-    await db.auditLog.create({
-      data: {
-        id: createId('audit'),
-        organizationId: membership.organizationId,
-        userId: session.user.id,
-        action: 'project.delete',
-        resourceType: 'project',
-        resourceId: projectId,
-        metadata: { name: project.name },
-      },
-    });
-
-    revalidatePath('/projects');
+    revalidatePath(APP_ROUTES.dashboardProjects);
+    revalidatePath(APP_ROUTES.dashboard);
     return { success: true };
   } catch (error) {
     console.error('Failed to delete project:', error);
-    return { error: 'Failed to delete project. Please try again.' };
+    return { error: toActionError(error, 'Failed to delete project. Please try again.') };
   }
 }

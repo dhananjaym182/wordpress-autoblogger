@@ -22,7 +22,7 @@ export default function HomePage() {
             <Link href="/signup">Get Started Free</Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
-            <Link href="/demo">View Demo</Link>
+            <Link href="/login">Sign In</Link>
           </Button>
         </div>
       </section>

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { OrgSwitcher } from "@/modules/org/components/OrgSwitcher"
+import { SettingsActions } from "@/modules/settings/components/SettingsActions"
 
 export default function SettingsPage() {
   return (
@@ -25,10 +25,7 @@ export default function SettingsPage() {
             <Badge>Verified</Badge>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <Button variant="outline">Export data</Button>
-            <Button variant="destructive">Delete account</Button>
-          </div>
+          <SettingsActions />
         </CardContent>
       </Card>
 

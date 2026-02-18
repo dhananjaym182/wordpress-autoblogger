@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { getProjectForUser } from '../lib/project-access';
+import { APP_ROUTES } from '@/api/core/routes';
 
 export async function testConnection(projectId: string) {
   const session = await auth.api.getSession({
@@ -35,8 +36,9 @@ export async function testConnection(projectId: string) {
     },
   });
 
-  revalidatePath(`/projects/${access.project.id}`);
-  revalidatePath(`/projects/${access.project.id}/connection`);
+  revalidatePath(APP_ROUTES.dashboardProjects);
+  revalidatePath(APP_ROUTES.dashboardContent);
+  revalidatePath(APP_ROUTES.dashboardSettings);
 
   return { success: true, connection };
 }

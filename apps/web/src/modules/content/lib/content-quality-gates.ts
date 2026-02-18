@@ -1,5 +1,3 @@
-import { ScheduledPost } from '@prisma/client';
-
 export interface QualityIssue {
   type: 'error' | 'warning';
   message: string;

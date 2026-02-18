@@ -59,7 +59,7 @@ export async function buildGatewayForOrganization(organizationId: string) {
     orderBy: { createdAt: 'asc' },
   });
 
-  const providers: AIProvider[] = endpoints.map((endpoint) => {
+  const providers: AIProvider[] = endpoints.map((endpoint: (typeof endpoints)[number]) => {
     const capabilities = endpoint.capabilities as { text?: boolean; image?: boolean } | null;
 
     return {

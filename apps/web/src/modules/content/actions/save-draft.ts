@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { createId } from '@/lib/id';
+import { APP_ROUTES } from '@/api/core/routes';
 import { analyzeSeo } from '../lib/seo-analyzer';
 import { markdownToGutenberg } from '../lib/markdown-to-gutenberg';
 
@@ -110,8 +111,9 @@ export async function saveDraft(input: SaveDraftInput) {
       },
     });
 
-    revalidatePath(`/projects/${project.id}`);
-    revalidatePath(`/projects/${project.id}/posts/new`);
+    revalidatePath(APP_ROUTES.dashboardContent);
+    revalidatePath(APP_ROUTES.dashboardPlanner);
+    revalidatePath(APP_ROUTES.dashboardProjects);
 
     return { success: true, post };
   } catch (error) {
