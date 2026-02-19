@@ -3,6 +3,7 @@ import { ProjectsPage } from '@/modules/projects/components/ProjectsPage';
 import { requireSession } from '@/api/core/auth-context';
 import { getActiveMembership } from '@/api/core/organization-context';
 import { getProjectSwitcherState, listProjectsForOrganization } from '@/api/projects/service';
+import { PageHeader } from '@/components/ui/page-header';
 
 export default async function DashboardProjectsRoute() {
   const session = await requireSession();
@@ -13,16 +14,12 @@ export default async function DashboardProjectsRoute() {
   ]);
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
-          <p className="text-muted-foreground">
-            Create and manage organization projects connected to WordPress.
-          </p>
-        </div>
-        <OrgSwitcher />
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Projects"
+        description="Create and manage organization projects connected to WordPress."
+        actions={<OrgSwitcher />}
+      />
 
       <ProjectsPage
         activeProjectId={projectSwitcher.activeProjectId}

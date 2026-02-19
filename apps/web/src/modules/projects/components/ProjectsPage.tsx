@@ -164,14 +164,7 @@ export function ProjectsPage({ projects, activeProjectId }: ProjectsPageProps) {
         </Alert>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-xl font-semibold tracking-tight">Projects</h2>
-          <p className="text-sm text-muted-foreground">
-            Manage WordPress sites and publishing workspaces for this organization.
-          </p>
-        </div>
-
+      <div className="flex justify-end">
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>

@@ -13,6 +13,7 @@ function VerifyEmailContent() {
   const router = useRouter();
   const token = searchParams.get('token');
   const callbackURL = searchParams.get('callbackURL');
+  const email = searchParams.get('email');
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'pending'>('loading');
   const [error, setError] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
@@ -59,22 +60,31 @@ function VerifyEmailContent() {
   const handleResendVerification = async () => {
     setResending(true);
     setResendMessage(null);
+    setError(null);
+
     try {
-      // Get the current session to find the user's email
       const sessionResponse = await authClient.getSession();
       const session = sessionResponse?.data;
-      if (session?.user?.email) {
-        // Use Better Auth's send verification email
-        await authClient.sendVerificationEmail({
-          email: session.user.email,
-          callbackURL: '/dashboard',
-        });
-        setResendMessage('Verification email sent. Check your inbox.');
-      } else {
-        setError('No active session found. Please log in again.');
+
+      const targetEmail = session?.user?.email ?? email;
+
+      if (!targetEmail) {
+        setError('No email found. Please log in again and retry.');
+        return;
       }
+
+      await authClient.sendVerificationEmail({
+        email: targetEmail,
+        callbackURL: '/dashboard',
+      });
+
+      setResendMessage('Verification email sent. Check your inbox.');
     } catch (err) {
-      setError('Failed to send verification email. Please try again later.');
+      if (err instanceof Error && err.message.includes('NOT_CONFIGURED')) {
+        setError('Email sending is not configured in this environment. Contact an admin to verify manually.');
+      } else {
+        setError('Failed to send verification email. Please try again later.');
+      }
     } finally {
       setResending(false);
     }
@@ -106,7 +116,7 @@ function VerifyEmailContent() {
               Verify your email
             </CardTitle>
             <CardDescription className="text-center">
-              A verification email has been sent to your email address. 
+              A verification email has been sent to {email ? <strong>{email}</strong> : 'your email address'}.
               Please check your inbox and follow the link to continue.
             </CardDescription>
           </>

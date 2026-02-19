@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" fill="none" role="img" aria-label="AutoBlogger minimal logo light">
+  <defs>
+    <linearGradient id="ab-min-light-bg" x1="20" y1="16" x2="112" y2="116" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B82F6" />
+      <stop offset="1" stop-color="#1D4ED8" />
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#ab-min-light-bg)" />
+  <path
+    d="M64.001 24 31 104h15.775l6.462-16.645h21.53L81.23 104H97L64.001 24Zm0 20.31 7.75 20.042H56.25L64 44.31Z"
+    fill="#F8FAFC"
+  />
+  <path d="M64 44.31 56.25 64.352h15.502L64 44.31Z" fill="#DBEAFE" />
+</svg>

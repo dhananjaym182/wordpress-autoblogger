@@ -7,13 +7,13 @@ import {
   CreditCard,
   Crown,
   FileSearch,
-  FileText,
   FolderKanban,
   LayoutDashboard,
   Settings,
   Sparkles,
 } from "lucide-react"
 
+import { BrandLogo } from "@/components/brand/BrandLogo"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
 import {
@@ -22,6 +22,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 
 type AppSidebarUser = {
@@ -130,19 +131,23 @@ export function AppSidebar({
   return (
     <Sidebar
       collapsible="icon"
-      className="border-r border-sidebar-border/60 bg-gradient-to-b from-sidebar to-sidebar/95"
+      className="border-r border-sidebar-border/60 bg-gradient-to-b from-sidebar via-sidebar to-sidebar/95 supports-[backdrop-filter]:backdrop-blur-xl"
       {...props}
     >
       <SidebarHeader>
-        <div className="rounded-xl border border-sidebar-border/60 bg-sidebar-accent/30 p-2.5">
+        <div className="rounded-xl border border-sidebar-border/60 bg-sidebar-accent/35 p-2.5 shadow-sm">
           <div className="flex items-center gap-2.5 px-1.5 py-1">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-primary/20">
-            <FileText className="size-4" />
-            </div>
-            <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-              <span className="truncate text-[15px] font-semibold tracking-tight">AutoBlogger</span>
-              <span className="truncate text-xs text-muted-foreground">AI Publishing Suite</span>
-            </div>
+            <BrandLogo
+              variant="minimal"
+              size={32}
+              withText
+              className="group-data-[collapsible=icon]:[&>span:last-child]:hidden"
+              label="AutoBlogger"
+            />
+          </div>
+
+          <div className="px-1.5 pt-0.5 group-data-[collapsible=icon]:hidden">
+            <span className="truncate text-xs text-muted-foreground">AI Publishing Suite</span>
           </div>
 
           <div className="mt-2.5 grid grid-cols-2 gap-1.5 group-data-[collapsible=icon]:hidden">
@@ -150,7 +155,7 @@ export function AppSidebar({
               <Link
                 key={action.label}
                 href={action.href}
-                className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-sidebar-foreground/90 transition hover:bg-sidebar-accent"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-sidebar-foreground/90 transition-colors duration-200 hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
               >
                 <action.icon className="size-3.5" />
                 <span>{action.label}</span>
@@ -159,8 +164,9 @@ export function AppSidebar({
           </div>
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="px-1 pb-2">
         <NavMain items={data.navMain} label="Workspace" />
+        <SidebarSeparator />
         <NavMain items={data.secondary} label="Account" />
       </SidebarContent>
       <SidebarFooter>

@@ -101,7 +101,17 @@ export default function HomePage() {
         </div>
 
         <h1 className="mx-auto mt-8 max-w-4xl text-balance text-5xl font-bold tracking-tight sm:text-7xl">
-          AI-Powered WordPress Autoblogging That Ships on Schedule
+          <span className="block">AI-Powered WordPress</span>
+          <span className="relative mt-1 inline-block">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-2 bottom-1 h-3 rounded-full bg-primary/20 blur-md dark:bg-primary/30"
+            />
+            <span className="relative bg-gradient-to-r from-primary via-sky-500 to-primary bg-clip-text text-transparent">
+              Autoblogging
+            </span>
+          </span>
+          <span className="block mt-1">That Ships on Schedule</span>
         </h1>
 
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">

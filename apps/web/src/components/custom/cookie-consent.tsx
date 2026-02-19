@@ -129,9 +129,9 @@ export function CookieConsent() {
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6">
+    <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-[80] p-4 md:p-6">
       {!showPreferences ? (
-        <Card className="mx-auto max-w-4xl p-6 shadow-lg">
+        <Card className="pointer-events-auto mx-auto max-w-4xl p-6 shadow-lg">
           <div className="flex items-start gap-4">
             <div className="rounded-full bg-primary/10 p-3">
               <Cookie className="h-6 w-6 text-primary" />
@@ -165,7 +165,7 @@ export function CookieConsent() {
           </div>
         </Card>
       ) : (
-        <Card className="mx-auto max-w-2xl p-6 shadow-lg">
+        <Card className="pointer-events-auto mx-auto max-w-2xl p-6 shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold">Customize Cookie Preferences</h3>
             <button

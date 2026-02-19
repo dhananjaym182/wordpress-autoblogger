@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" role="img" aria-label="AutoBlogger app icon">
+  <defs>
+    <linearGradient id="ab-app-bg" x1="54" y1="40" x2="454" y2="470" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#60A5FA" />
+      <stop offset="0.55" stop-color="#3B82F6" />
+      <stop offset="1" stop-color="#1D4ED8" />
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="448" height="448" rx="120" fill="url(#ab-app-bg)" />
+  <path d="M256.001 96 123 416h62.882l25.861-66.58h87.258L324.86 416H388L256.001 96Zm0 81.238 30.999 80.167H224.999L256 177.238Z" fill="#EFF6FF" />
+  <path d="M256 177.238 224.999 257.405h62.001L256 177.238Z" fill="#BFDBFE" />
+</svg>

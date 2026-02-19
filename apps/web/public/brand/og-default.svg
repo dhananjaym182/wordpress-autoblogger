@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none" role="img" aria-label="AutoBlogger open graph default image">
+  <defs>
+    <linearGradient id="ab-og-bg" x1="118" y1="52" x2="1096" y2="615" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B1120" />
+      <stop offset="0.48" stop-color="#0F172A" />
+      <stop offset="1" stop-color="#1E3A8A" />
+    </linearGradient>
+    <linearGradient id="ab-og-card" x1="80" y1="78" x2="568" y2="558" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#60A5FA" />
+      <stop offset="1" stop-color="#2563EB" />
+    </linearGradient>
+    <linearGradient id="ab-og-text" x1="610" y1="190" x2="1080" y2="520" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F8FAFC" />
+      <stop offset="1" stop-color="#BFDBFE" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#ab-og-bg)" />
+  <rect x="68" y="72" width="468" height="486" rx="108" fill="url(#ab-og-card)" />
+  <path d="M302 150 162 486h67.627l27.634-72.103h91.476L376.372 486H444L302 150Zm0 88.223 34.69 87.219h-69.38L302 238.223Z" fill="#EFF6FF" />
+  <text x="610" y="290" fill="url(#ab-og-text)" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="78" font-weight="800" letter-spacing="-1">AutoBlogger</text>
+  <text x="610" y="362" fill="#DBEAFE" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="38" font-weight="600">AI-Powered WordPress Autoblogging</text>
+  <text x="610" y="426" fill="#BFDBFE" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="30" font-weight="500">Generate • Schedule • Publish</text>
+</svg>

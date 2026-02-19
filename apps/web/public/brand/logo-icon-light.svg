@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="96" viewBox="0 0 320 96" fill="none" role="img" aria-label="AutoBlogger icon-first logo light">
+  <defs>
+    <linearGradient id="ab-icon-light-bg" x1="8" y1="8" x2="88" y2="88" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B82F6" />
+      <stop offset="1" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="ab-icon-light-text" x1="108" y1="18" x2="305" y2="82" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F172A" />
+      <stop offset="1" stop-color="#1E3A8A" />
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="80" height="80" rx="20" fill="url(#ab-icon-light-bg)" />
+  <path d="M48.001 20 24 76h11.473l4.701-12.115h15.652L60.527 76H72L48.001 20Zm0 15.191 5.636 14.52H42.364L48 35.19Z" fill="#F8FAFC" />
+  <text x="108" y="58" fill="url(#ab-icon-light-text)" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="34" font-weight="700" letter-spacing="-0.5">AutoBlogger</text>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none" role="img" aria-label="AutoBlogger favicon">
+  <defs>
+    <linearGradient id="ab-fav" x1="7" y1="6" x2="58" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B82F6" />
+      <stop offset="1" stop-color="#1D4ED8" />
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#ab-fav)" />
+  <path d="M31.999 11 16 51h7.352l3.074-8.242h10.647L40.145 51h7.351L31.999 11Zm0 10.57 3.962 10.624h-7.923L32 21.57Z" fill="#F8FAFC" />
+</svg>

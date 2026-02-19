@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { CheckCircle2 } from "lucide-react"
 
+import { BrandLogo } from "@/components/brand/BrandLogo"
 import SignUp from "@/modules/auth/components/SignupForm"
 
 export const metadata = {
@@ -19,6 +20,9 @@ export default function SignupPage() {
     <section className="container mx-auto px-4">
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
         <div className="hidden rounded-2xl border border-border/70 bg-background/75 p-8 backdrop-blur-sm lg:block">
+          <div className="mb-6">
+            <BrandLogo variant="icon" size={36} mode="auto" label="AutoBlogger" />
+          </div>
           <h1 className="text-3xl font-semibold tracking-tight">Create your workspace</h1>
           <p className="mt-3 text-muted-foreground">
             Start with a free account and scale your publishing pipeline as content volume grows.

@@ -53,34 +53,39 @@ export function AppShell({ children, user, projectSwitcher }: AppShellProps) {
   return (
     <SidebarProvider>
       <AppSidebar user={user} />
-      <SidebarInset>
-        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b bg-background/90 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
+      <SidebarInset className="bg-gradient-to-b from-background to-muted/20">
+        <header className="z-20 flex min-h-14 shrink-0 items-center gap-2 border-b border-border/70 bg-background/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:px-4">
+          <SidebarTrigger className="h-8 w-8 rounded-md" />
+          <Separator orientation="vertical" className="mr-1 hidden h-4 sm:block" />
 
-          <Breadcrumb>
+          <Breadcrumb className="min-w-0">
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbPage>Dashboard</BreadcrumbPage>
+                <BreadcrumbPage className="text-muted-foreground">Dashboard</BreadcrumbPage>
               </BreadcrumbItem>
               {currentLabel !== 'Dashboard' && (
                 <>
                   <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>{currentLabel}</BreadcrumbPage>
+                    <BreadcrumbPage className="truncate">{currentLabel}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </>
               )}
             </BreadcrumbList>
           </Breadcrumb>
 
-          <div className="relative ml-auto hidden w-full max-w-md sm:block">
+          <div className="relative ml-auto hidden w-full max-w-sm xl:block">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input className="pl-9" type="search" placeholder="Search dashboard" aria-label="Search" />
+            <Input
+              className="h-9 border-border/70 bg-background/70 pl-9"
+              type="search"
+              placeholder="Search dashboard"
+              aria-label="Search"
+            />
           </div>
 
-          <div className="ml-2 flex items-center gap-2">
-            <div className="hidden lg:block">
+          <div className="ml-auto flex items-center gap-2 xl:ml-2">
+            <div className="hidden md:block">
               <ProjectSwitcherClient
                 projects={projectSwitcher?.projects ?? []}
                 activeProjectId={projectSwitcher?.activeProjectId ?? null}

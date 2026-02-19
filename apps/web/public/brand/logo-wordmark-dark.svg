@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="84" viewBox="0 0 360 84" fill="none" role="img" aria-label="AutoBlogger wordmark logo dark">
+  <defs>
+    <linearGradient id="ab-word-dark" x1="10" y1="8" x2="345" y2="76" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F8FAFC" />
+      <stop offset="0.55" stop-color="#DBEAFE" />
+      <stop offset="1" stop-color="#60A5FA" />
+    </linearGradient>
+  </defs>
+  <text x="8" y="54" fill="url(#ab-word-dark)" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="44" font-weight="800" letter-spacing="-1">AutoBlogger</text>
+  <rect x="10" y="66" width="212" height="6" rx="3" fill="#60A5FA" fill-opacity="0.5" />
+</svg>

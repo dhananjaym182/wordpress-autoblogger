@@ -4,6 +4,7 @@ import Link from "next/link"
 import { BookOpenText, Bot, FileText, Menu, ShieldCheck } from "lucide-react"
 import { usePathname } from "next/navigation"
 
+import { BrandLogo } from "@/components/brand/BrandLogo"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
@@ -110,10 +111,7 @@ export function PublicNavigation({ currentPath }: PublicNavigationProps) {
       <header className="sticky top-4 z-50 px-4">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between rounded-2xl border border-border/70 bg-background/80 px-4 py-3 shadow-lg shadow-primary/10 backdrop-blur-lg supports-[backdrop-filter]:bg-background/70">
           <Link href="/" className="flex cursor-pointer items-center gap-2">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary font-semibold text-primary-foreground">
-              A
-            </span>
-            <span className="text-base font-semibold tracking-tight sm:text-lg">AutoBlogger</span>
+            <BrandLogo variant="minimal" size={32} withText label="AutoBlogger" />
           </Link>
 
           <NavigationMenu className="hidden lg:flex">

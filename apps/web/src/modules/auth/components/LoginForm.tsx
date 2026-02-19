@@ -42,6 +42,11 @@ export default function SignIn() {
 								rememberMe,
 							});
 							if (result.error) {
+								if (result.error.code === "EMAIL_NOT_VERIFIED") {
+									router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+									return;
+								}
+
 								setError(result.error.message || "Failed to sign in");
 							} else {
 								router.push("/dashboard");
